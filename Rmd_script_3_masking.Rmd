@@ -1,0 +1,22 @@
+---
+title: "R Notebook 3 - masking NetCDF data"
+output: html_notebook
+---
+
+## Read in data from netcdf 
+
+## Subset only equatorial regions 
+
+## Subset only polar regions 
+
+## Subset Longitude slices 
+
+## Combining it - subset a box around a country of interest 
+
+## Subset using a mask 
+
+# Script with netcdf masking in it 
+https://github.com/millerlp/Misc_R_scripts/blob/master/NOAA_OISST_ncdf4.R
+# Another way 
+http://lukemiller.org/index.php/2011/03/extracting-sea-surface-temperatures-from-noaas-oisstv2/
+
