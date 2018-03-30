@@ -70,6 +70,11 @@ print(gpp_fillvalue)
 ```
 
 ```{r}
+nc_close(ncfile)
+```
+
+
+```{r}
 # replace netCDF fill values with NA's
 gpp[gpp==gpp_fillvalue$value] <- NA
 ```

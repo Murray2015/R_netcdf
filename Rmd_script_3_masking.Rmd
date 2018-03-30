@@ -4,16 +4,115 @@ output: html_notebook
 ---
 
 ## Read in data from netcdf 
+```{r}
+setwd("~/Documents/scratch/R_netcdf")
+library("ncdf4")
+ncfile <- nc_open("lpj-guess_agmerra_fullharm_yield_mai_global_annual_1980_2010_C360_T0_W0_N60_A0_1deg.nc4")
+print(ncfile)
+lat=ncvar_get(ncfile, 'lat')
+lon=ncvar_get(ncfile,'lon')
+time=ncvar_get(ncfile, "time")
+yield = ncvar_get(ncfile, 'yield_mai')
+length(lat)
+length(lon)
+length(time)
+length(yield)
+yield_name=ncatt_get(ncfile, "yield_mai", "long_name")
+print(yield_name)
+yield_units=ncatt_get(ncfile, "yield_mai", "units")
+print(yield_units)
+yield_fillvalue <- ncatt_get(ncfile,"yield_mai","_FillValue")
+print(yield_fillvalue)
+nc_close(ncfile)
+# replace netCDF fill values with NA's
+yield[yield==yield_fillvalue$value] <- NA
+first_yield_slice = yield[,180:1,1]
+```
+
+
+```{r}
+image(first_yield_slice)
+```
+
+
+```{r}
+dim(first_yield_slice)
+```
+
+
+```{r}
+first_yield_slice = yield[,180:1,2]
+image(first_yield_slice)
+```
+
 
 ## Subset only equatorial regions 
 
+```{r}
+tropic_capricorn = 90 - 23
+tropic_cancer = 90 + 23 
+tropics_yield_slice = yield[,tropic_cancer:tropic_capricorn,2]
+image(tropics_yield_slice)
+```
+
+## Summary statistics on data 
+
+```{r}
+mean(tropics_yield_slice)
+```
+
+
+```{r}
+mean(tropics_yield_slice, na.rm=T)
+```
+
+```{r}
+tropic_vector = as.vector(tropics_yield_slice)
+summary(tropic_vector)
+```
+
+
+
 ## Subset only polar regions 
+```{r}
+polar_south = 90 - 60
+polar_north = 90 + 60 
+polar_yield_slice = yield[,c(180:polar_north, polar_south:1),2]
+image(polar_yield_slice)
+```
 
 ## Subset Longitude slices 
+```{r}
+lat1 = 175
+lat2 = 180
+polar_yield_slice = yield[lat1:lat2,,2]
+image(polar_yield_slice)
+```
 
 ## Combining it - subset a box around a country of interest 
 
+```{r}
+polar_yield_slice = yield[290:335,135:100,2]
+image(polar_yield_slice)
+```
 ## Subset using a mask 
+
+```{r}
+ncfile = nc_open("ESA_forest_9regions_v2_1deg.nc")
+print(ncfile)
+mask = ncvar_get(ncfile, 'region_mask')
+library(fields)
+image.plot(mask, col=rainbow(9))
+nc_close(ncfile)
+```
+
+
+```{r}
+tropical_broad_dec_mask = ifelse(mask == 1,1,NA)
+first_yield_slice_tropical_broad = first_yield_slice * tropical_broad_dec_mask
+image(first_yield_slice_tropical_broad)
+```
+
 
 # Script with netcdf masking in it 
 https://github.com/millerlp/Misc_R_scripts/blob/master/NOAA_OISST_ncdf4.R
