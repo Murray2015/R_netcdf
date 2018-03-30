@@ -5,9 +5,17 @@ output: html_notebook
 
 This is second R notebook on working with climate data. In the last notebook, we introduced the programming constructs a "variable" and a "function". We then worked with 1 and 2 dimensional ascii data to make some scatter plots. In this notebook, we will introduce new functions for opening and working with 3 dimensional data, and higher dimensional data. Let's get started! 
 
+The first thing we always need to do is set our working directory to the folder where we have saved the data. 
+
+```{r}
+setwd("~/Documents/scratch/R_netcdf")
+```
+
+
 # 3 dimensional climate data - NetCDF files.
 It's unlikely you have heard of NetCDF as a file type. NetCDF files are like a stack of spreadsheets ontop of each other. See the picture below. 
 ![The structure of a netcdf file.](netcdf.gif)
+Often the X and Y variable refer to Lattitude and Longitude for climate data, although not always. Often a netcdf file is for the whole world, but they can just be for a part of the world. The random numbers in each square in the diagram are the variable of interest - this could be mean annual temperature, or rainfall, or ozone concentration, or anything. The time axis doesn't always exist in a netcdf file. If the time axis doesn't exist, the structure of the file is like just the first orange layer in the netcdf diagram above, without the pink and green layers.
 
 To work with netcdf files in R, you need to install a couple of packages. R is such a popular language for data analysis because it has thousands of packages which can be downloaded (for free!) with a single line of code. These packages range from forecasting time series for weather analysis or stock prices, to geospatial, to higher performance parallelisation routines, to..... you get the picture. If you can think of a scientific problem, there's probably already a package for it in R. 
 
@@ -17,17 +25,149 @@ In R, you install a package once using the "install.package()" function. This no
 install.packages("ncdf4")
 ```
 
-You should see a load of both black and red text flash by on the screen. The important bit is the last few lines, which should say thing have been loaded ok. Specifically, the final line should say "* DONE ([the package name])". The package then needs to be loaded into R. 
+You should see a load of both black and red text flash by on the screen. The important bit is the last few lines, which should say thing have been loaded ok. Specifically, the final line should say "* DONE ([the package name])". The package has now been installed, but it still needs to be loaded into R (and loading the package needs to be done at the start of every script with a package in it). Let's do this now. 
 
 ```{r}
 library("ncdf4")
 ```
 You shouldn't see any output from running this line of code, but we can now use the functions in the ncdf4 library. 
 
+So we know that netcdf files for climate data often contain the whole world, but they sometimes just have a part of the world, such as just a few countries or just a section of ocean. The easiest way to find out is to open the file and look at the ranges of the different variables. Luckily this is quite easy in R. First we use the ncdf4 library to open the file, and then we use the print function to print a summary of the file. Lets do this next. Remember if you havn't run the install.packages() and the library() functions, then R will complain that it "can't find" the function - which means R doesn't know what these functions are. 
+
+```{r}
+ncfile <- nc_open('2016722131556EnsembleGPP_MR_1deg.nc')
+print(ncfile)
+```
 
 
 
 
+```{r}
+lat=ncvar_get(ncfile, 'lat')
+lon=ncvar_get(ncfile,'lon')
+time=ncvar_get(ncfile, "time")
+gpp = ncvar_get(ncfile, 'gpp')
+```
+
+
+
+
+```{r}
+length(lat)
+length(lon)
+length(time)
+length(gpp)
+```
+
+
+```{r}
+gpp_name=ncatt_get(ncfile, "gpp", "long_name")
+print(gpp_name)
+gpp_units=ncatt_get(ncfile, "gpp", "units")
+print(gpp_units)
+gpp_fillvalue <- ncatt_get(ncfile,"gpp","_FillValue")
+print(gpp_fillvalue)
+```
+
+```{r}
+# replace netCDF fill values with NA's
+gpp[gpp==gpp_fillvalue$value] <- NA
+```
+
+
+
+```{r}
+dim(gpp)
+```
+
+## Making our first map 
+
+```{r}
+first_gpp_slice = gpp[,,1]
+image(first_gpp_slice)
+```
+
+```{r}
+flipped_first_gpp_slice = gpp[,180:1,1]
+image(flipped_first_gpp_slice)
+```
+
+## Adding a legend 
+
+```{r}
+# install.packages("fields")
+library("fields")
+image.plot(lon, lat, flipped_first_gpp_slice)
+```
+
+
+
+
+
+```{r}
+image.plot(lon, lat, flipped_first_gpp_slice)
+map(database = 'world', add = T, lwd=2)
+```
+
+## Changing colour pallets 
+
+```{r}
+# install.packages("RColorBrewer")
+library("RColorBrewer")
+image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(10, "RdBu")))
+map(database = 'world', add = T, lwd=2)
+```
+
+
+https://earlglynn.github.io/RNotes/package/RColorBrewer/index.html
+
+
+```{r}
+image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")))
+map(database = 'world', add = T, lwd=2)
+```
+
+
+https://www.rdocumentation.org/packages/fields/versions/9.6/topics/image.plot
+
+
+```{r}
+par(mar=c(3,3,3,3))
+image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+map(database = 'world', add = T, lwd=2)
+```
+
+## Colourblind friends / printing in black and white friendly colors? 
+
+
+https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html
+
+```{r}
+# install.packages("viridis")
+library(viridis)
+par(mar=c(3,3,3,3))
+image.plot(lon, lat, flipped_first_gpp_slice, col=viridis(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+map(database = 'world', add = T, lwd=2)
+```
+
+## Saving plots 
+
+```{r}
+png("gpp_map.png", width=10, height=5, units = 'in', res = 300)
+par(mar=c(3,3,3,3))
+image.plot(lon, lat, flipped_first_gpp_slice, col=plasma(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+map(database = 'world', add = T, lwd=2)
+dev.off()
+```
+
+## Making a difference map 
+
+```{r}
+gpp1 = gpp[,180:1,1]
+gpp200 = gpp[,180:1,200]
+gpp_difference = gpp200 - gpp1
+image.plot(lon, lat, gpp_difference)
+```
 
 
 
