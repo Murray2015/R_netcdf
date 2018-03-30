@@ -113,6 +113,23 @@ first_yield_slice_tropical_broad = first_yield_slice * tropical_broad_dec_mask
 image(first_yield_slice_tropical_broad)
 ```
 
+```{r}
+summary(as.vector(first_yield_slice_tropical_broad ))
+```
+
+
+## Time series 
+
+```{r}
+ncfile <- nc_open("lpj-guess_agmerra_fullharm_yield_mai_global_annual_1980_2010_C360_T0_W0_N60_A0_1deg.nc4")
+print(ncfile)
+time_series_1 = ncvar_get(ncfile, varid="yield_mai", start=c(178,38,1), count=c(1,1,length(time)))
+nc_close(ncfile)
+plot(time_series_1, type='l')
+```
+
+
+
 
 # Script with netcdf masking in it 
 https://github.com/millerlp/Misc_R_scripts/blob/master/NOAA_OISST_ncdf4.R
