@@ -36,10 +36,11 @@ library("ncdf4")
 You shouldn't see any output from running this line of code, but we can now use the functions in the ncdf4 package. 
 
 What we are going to walk you through doing in the next few code chunks is the standard workflow for using a NetCDF file. This workflow is as follows:
-1. Open the NetCDF file in R with the "nc_open()" function
+1. Open the NetCDF file connection in R with the "nc_open()" function
 2. Find out what is actually inside the netcdf file with the "print()" function
-3. Extract the variables we want to use from the NetCDF file using the "ncget_var()" function
-4. Close the NetCDF file in R with the "nc_close()" function.
+3. Extract the variables we want to use from the NetCDF file using the "ncvar_get()" function
+4. Extract any attributes we want from the NetCDF file using the "ncatt_get()" function
+5. Close the NetCDF file connection in R with the "nc_close()" function.
 
 Each of the steps above is quite easy, so don't panic! 
 
@@ -121,37 +122,48 @@ head(gpp)
 So it looks like the latitude variable goes from -90 upwards, i.e. from the south pole. That's fine. The longitude variable seems to go from -180 upwards, which sounds about right too. The time variable seems to be a bit crazy though! We should look back at the meta data from the print() function. If you look back, we find out that the time variable is in units of "days since 1582-10-14 00:00:00". Ok, so we are probably looking for a big number then. The last variable gpp seems to have lots of NA's (standing for not applicable). This might mean we have loaded it incorrectly, or it might just be because there is no data at that point. Lets look at the end of the variable:
 
 ```{r}
+# Print the last few values in the gpp variable to see if it is still full of NAs. 
 tail(gpp)
 ```
 
 Hmm. The end of the variable also seems to be filled with NAs. We might now be slightly worried about whether all of the gpp variable is full of NAs. A quick way to check this without reading all 23 million values (not recommended) is to sum up the whole vector using the "sum()" function and see if it comes to a value greater than 0. **Note** the na.rm=T function argument which tells R to remove the NAs before summing, otherwise R will return NA. 
 
 ```{r}
+# Remove all the NAs, and sum up any numbers that remain. If we get a value of 0, there is no data in the gpp variable and it is all NAs, which probably means we have loaded the file incorrectly. If we get any value above 0 then the gpp variable does have some data in it. 
 sum(gpp, na.rm=T)
 ```
 
-Ok, we do have data in the gpp variable. It's ok. 
+Ok, the value is above 1. So we do have data in the gpp variable. It's ok. 
 
-
-
+The last thing we want to do is extract some of the attributes in the meta-data. Lets get the full name of the gpp variable and it's units. We can then use these for things like plot titles later. Let's also get the _FillValue. This is the value in the NetCDF file that corresponds to NA. The fact that we saw lots of NAs with the head and tail function might show that R has managed to handle it for us already, but it's better to be safe than sorry! 
 
 ```{r}
+# Get the long name attribute for the gpp variable, for plotting later
 gpp_name=ncatt_get(ncfile, "gpp", "long_name")
 print(gpp_name)
+# Get the units of the gpp variable, for plotting later 
 gpp_units=ncatt_get(ncfile, "gpp", "units")
 print(gpp_units)
+# Get the value that corresponds to NA in the gpp variable. 
 gpp_fillvalue <- ncatt_get(ncfile,"gpp","_FillValue")
 print(gpp_fillvalue)
 ```
+
+From printing these, we can see that each extracted attribute has an "hasatt" and a "value". hasatt stands for "has attribute" and is either true or false. If it is true, the "value" holds the value. 
+
+We have now extracted all the data we need from the NetCDF file connection. We can now close the connection to the file. This frees up some computer memory for us. Note that we didn't need to do this in the last notebook for the "read.csv()" and "read.table()" functions which close the file automatically. 
 
 ```{r}
 nc_close(ncfile)
 ```
 
+Now for a super useful little line of code. NetCDF files often have NA values that correspond to a very big or very samll number. For example, a common NA number is -9999.99. If we try to plot the gpp variable in R, the colour scale will expand to -9999.99 and so the map will be impossible to understand. Instead we want to set these -9999.99 values (or whatever the NetCDF's _FillValue is) to NA inside R. R will then not plot anything which is NA, and our plots will be human readable. 
+
+The line of code below is short, but quite complex. What the line of code does, is use the square brackets to extract any values in the gpp variable which equal the value in gpp_fillvalues, and set it to NA. If you need to use this line of code in your own work, just copy and paste and change the variable names to the variable names in your work. 
 
 ```{r}
 # replace netCDF fill values with NA's
-gpp[gpp==gpp_fillvalue$value] <- NA
+gpp[gpp==gpp_fillvalue$value] = NA
 ```
 
 
