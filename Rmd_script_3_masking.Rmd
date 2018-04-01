@@ -46,6 +46,17 @@ image(first_yield_slice)
 ```
 
 
+## Making a difference map 
+
+```{r}
+gpp1 = gpp[,180:1,1]
+gpp200 = gpp[,180:1,200]
+gpp_difference = gpp200 - gpp1
+image.plot(lon, lat, gpp_difference)
+```
+
+
+
 ## Subset only equatorial regions 
 
 ```{r}

@@ -3,22 +3,23 @@ title: "R Notebook 2 - working with NetCDF data"
 output: html_notebook
 ---
 
-Hello! This is second R notebook on working with climate data. In the last notebook, we introduced the programming constructs of a "variable" and a "function". We then worked with 1 and 2 dimensional ascii data to make some scatter plots. In this notebook, we will introduce new functions for opening and working with 3 dimensional data, and higher dimensional data. But don't panic, we will stil just be storing this new data in variables, and working with the data with functions, so you already know all the theory. Let's get started! 
+Hello! This is the second R notebook on working with climate data. In the last notebook, we introduced the programming constructs of a "variable" and a "function". We then worked with 1 and 2 dimensional ascii data to make some scatter plots. In this notebook, we will introduce new functions for opening and working with a type of file called a NetCDF file, which contains 3 dimensional and higher dimensional data. But don't panic, we will stil just be storing this new data in variables, and working with the data with functions, so you already know all the theory. Let's get started! 
 
-As mentioned in the last R notebook, the first thing we always need to do is set our working directory to the folder where we have saved the data. Otherwise R doesn't know where to look for the data.
+
+# 3 dimensional climate data - NetCDF files.
+
+As mentioned in the last R notebook, the first thing we always need to do is set our working directory to the folder where we have saved the data. Otherwise R doesn't know where to look for the data. We run the code in the gray code chunk below by clicking in the gray box and pressing *Ctrl+Enter* (assuming you have opened this document in R studio). 
 
 ```{r}
 # Set the working directory to the folder where the data is saved.
 setwd("~/Documents/scratch/R_netcdf")
 ```
 
-
-# 3 dimensional climate data - NetCDF files.
-It's unlikely you have heard of NetCDF as a file type. NetCDF files are used for various types of climate data and geophysical data. NetCDF files are like a stack of spreadsheets ontop of each other, where the x and y variables are normally lattitude and longitude. See the picture below. 
+You probably havn't heard of NetCDF as a file type. NetCDF files are files that normally end with the file extension .nc or sometimes .grd. NetCDF files are used for various types of climate data and geophysical data. The structure of data inside a NetCDF file is like a stack of spreadsheets ontop of each other, where the x and y variables are normally lattitude and longitude. See the picture below. 
 ![The structure of a netcdf file.](netcdf.gif)
-Often the X and Y variable refer to Lattitude and Longitude for climate data, although not always. Often a netcdf file is for the whole world, but they can just be for a part of the world. The random numbers in each square in the diagram are the variable of interest - this could be mean annual temperature, or rainfall, or ozone concentration, or anything. The time axis doesn't always exist in a netcdf file. If the time axis doesn't exist, the structure of the file is like just the first orange layer in the netcdf diagram above, without the pink and green layers.
+The X and Y variable refer to Lattitude and Longitude for climate data, although not always. Often a NetCDF file contains data for the whole world, but they can just contain data for a part of the world. The random numbers in each square in the diagram represent the actual data for the variable of interest - this could be mean annual temperature, or rainfall, or ozone concentration, or anything. The time axis doesn't always exist in a netcdf file. If the time axis doesn't exist, the structure of the file is like just the first orange layer in the netcdf diagram above, without the pink and green layers.
 
-To work with netcdf files in R, you need to install a couple of packages. R is such a popular language for science and data analysis because it has thousands of packages which can be downloaded (for free!) with a single line of code. These packages range from forecasting time series for weather analysis or stock prices, to working with geospatial data, to higher performance parallelisation routines, to..... you get the idea. If you can think of a scientific problem, there's probably already a package for it in R. 
+To work with netcdf files in R, you need to install a couple of packages. R is such a popular language for science and data analysis because it has thousands of packages which can be downloaded (for free!) with a single line of code. These packages range from forecasting time series for weather analysis or stock prices, to working with geospatial data, to higher performance parallelisation routines, to adding pictures of cats to plots (yes, really!) to..... you get the idea. If you can think of a scientific problem, there's probably already a package for it in R. 
 
 In R, you install a package once using the "install.package()" function. This normally only needs to be done once on a computer. Then the package must be loaded into R with the "library()" function. This needs to be done every time you restart R. Let's load the ncdf4 package. 
 
@@ -35,7 +36,7 @@ library("ncdf4")
 ```
 You shouldn't see any output from running this line of code, but we can now use the functions in the ncdf4 package. 
 
-What we are going to walk you through doing in the next few code chunks is the standard workflow for using a NetCDF file. This workflow is as follows:
+What we are going to walk you through doing in the next few code chunks is the standard workflow for using a NetCDF file in R. This workflow is as follows:
 1. Open the NetCDF file connection in R with the "nc_open()" function
 2. Find out what is actually inside the netcdf file with the "print()" function
 3. Extract the variables we want to use from the NetCDF file using the "ncvar_get()" function
@@ -44,16 +45,16 @@ What we are going to walk you through doing in the next few code chunks is the s
 
 Each of the steps above is quite easy, so don't panic! 
 
-Ok, so we know that netcdf files for climate data often contain the whole world, but they sometimes just have a part of the world, such as just a few countries or just a section of ocean. The easiest way to find out is to open the NetCDF file and look at the ranges of different variables. Luckily this is quite easy in R. First we use the ncdf4 library to open the file, and then we use the print function to print a summary of the file. Lets do this now. Remember if you havn't run the install.packages() and the library() functions, then R will complain that it "can't find" the function - which means R doesn't know what these functions are because they havn't been loaded yet. 
+First, we want to open the NetCDF file and look at the ranges of different variables. Luckily this is quite easy in R. First we use the ncdf4 library to open a connection to the file and store this connection in a variable, and then we use the print function to print a summary of the file. Lets do this now. Remember if you havn't run the install.packages() and the library() functions, then R will complain that it "can't find" the function - which means R doesn't know what these functions are because they havn't been loaded yet. 
 
 ```{r}
-# Open a connection to the NetCDF file and store this connection in a variable called ncfile. (don't worry about what we mean by a "connection" to the file, this will become clear throughout the expamples.)
+# Open a connection to the NetCDF file and store this connection in a variable called ncfile. (don't worry about what we mean by a "connection" to the file, this will become clear throughout the examples.)
 ncfile <- nc_open('2016722131556EnsembleGPP_MR_1deg.nc')
 # Print the header of the NetCDF file (i.e. print the NetCDF file's metadata)
 print(ncfile)
 ```
 
-Ouch, that's quite a lot of text! Take a moment to read it all. Even though the output looks confusing, this is the same sort of output you will get from every NetCDF file you open with R. 
+Ouch, that's quite a lot of text! Take a moment to read it all. Even though the output looks confusing, this is the same sort of output you will get from every NetCDF file you open with R, so it will become easy after you've done it a couple of times. 
 
 The first few lines of the output say:
 > 3 variables (excluding dimension variables):
@@ -65,7 +66,7 @@ float std[lon,lat,time]
 
 This tells us there are 3 variables in this netcdf file. The first variable is time_bnds, the second is gpp, and the third is std. You will often see "double" and "float". This refers to how many decimal places the computer is storing numbers as. The important bit is that it is just a normal decimal number.  
 
-The next paragraph tells us information about the variables
+The next paragraph of the print() output tells us information about the variables in the NetCDF file:
 
 >     4 dimensions:
 time  Size:360
@@ -77,7 +78,7 @@ lon  Size:360
 lat  Size:180
   (some other output)
 
-This tells us that the dimensions of the file and the standard lattitude (stored in the variable called "lat") and longitude (stored in the variable called "lon") and time (stored in the variable called "time"). There is a forth variable called bnds - don't worry about this, we dont need it. 
+This tells us that the dimensions of the file are lattitude (stored in the variable called "lat"), longitude (stored in the variable called "lon"), and time (stored in the variable called "time"). There is a forth variable called bnds - don't worry about this, we dont need it. 
 
 After this, we have a long paragraph which starts with 
 
@@ -86,7 +87,7 @@ After this, we have a long paragraph which starts with
 
 In a NetCDF file, the global attributes are normally useful things like who made the file, when it was made, a description, and other useful information which is often called meta-data. 
 
-We now understand a bit about our NetCDF file. The next step is to extract variables in the NetCDF file into variables in R. To do this we use the "ncvar_get()" function. The function arguments nc= refers to the NetCdf file, while the varid= function argument refers to the variable name *in the NetCDF* file. This is why we needed to use the print() function in the last step to find out the variable names. 
+We now understand a bit about our NetCDF file. The next step is to extract variables in the NetCDF file into variables in R. To do this we use the "ncvar_get()" function. The function arguments nc= refers to the NetCdf file, while the varid= function argument refers to the variable name *in the NetCDF* file. This is why we needed to use the print() function in the last step; to find out the variable names. 
 
 ```{r}
 # Extract the 'lat' variable in the netcdf file, and store it in a variable called 'lat' in R.
@@ -99,7 +100,7 @@ time=ncvar_get(nc=ncfile, varid="time")
 gpp = ncvar_get(nc=ncfile, varid='gpp')
 ```
 
-We now have 4 variables in R holding the information we extracted from the variables inside the NetCDF file. We want to know what is inside these variables. We could just print their whole contents to the screen by just running their name in the usual way. However we know that some of these variables might be very very big, and this might cause the computer to crash. A safer way is to use the "length()" function or the "dim()" function to see how long the variable is. Lets do this:
+We now have 4 variables in R holding the information we extracted from the variables inside the NetCDF file. We want to know what is inside these variables. We could just print their whole contents to the screen by just running their name in the usual way. However we know that some of these variables might be very, very big, and this might cause the computer to crash. A safer way is to use the "length()" function or the "dim()" function to see how long the variable is. Lets do this:
 
 ```{r}
 # Use the length function to see how long each variable is
@@ -109,7 +110,7 @@ length(time)
 length(gpp)
 ```
 
-Ok, so that final variable gpp has 23 million entries. Probably a good thing we didn't just print that to the screen. (Also, if you're still thinking why are we using R not excel, try opening a 23million line long file in excel). R has two useful functions, "head()" and "tail()" for looking at the first few or last few entires of a really long file without printing everything. Lets have a quick look at the first few values of each variable. 
+Ok, so that final variable gpp has 23 million entries. Probably a good thing we didn't just print that to the screen. (Also, if you're still thinking why are we using R not excel, try opening a 23 million line long file in excel). R has two useful functions, "head()" and "tail()", for looking at the first few or last few entires of a really long file without printing everything. Lets have a quick look at the first few values of each variable. 
 
 ```{r}
 # Use the head() function to see the first 5 entries of each variable, to help us understand out data. 
@@ -126,11 +127,11 @@ So it looks like the latitude variable goes from -90 upwards, i.e. from the sout
 tail(gpp)
 ```
 
-Hmm. The end of the variable also seems to be filled with NAs. We might now be slightly worried about whether all of the gpp variable is full of NAs. A quick way to check this without reading all 23 million values (not recommended) is to sum up the whole vector using the "sum()" function and see if it comes to a value greater than 0. **Note** the na.rm=T function argument which tells R to remove the NAs before summing, otherwise R will return NA. 
+Hmm. The end of the variable also seems to be filled with NAs. We might now be slightly worried about whether all of the gpp variable is full of NAs. A quick way to check this without reading all 23 million values is to sum up the whole vector using the "sum()" function and see if it comes to a value greater than 0. **Note** you *need* the na.rm=TRUE function argument, which tells R to remove the NAs before summing, otherwise R will return NA. 
 
 ```{r}
-# Remove all the NAs, and sum up any numbers that remain. If we get a value of 0, there is no data in the gpp variable and it is all NAs, which probably means we have loaded the file incorrectly. If we get any value above 0 then the gpp variable does have some data in it. 
-sum(gpp, na.rm=T)
+# Remove all the NAs, and sum up any numbers that remain. If we get a value of 0, there is no data in the gpp variable and it is all NAs, which probably means we have loaded the file incorrectly. If we get any value above 0 then the gpp variable does have some data in it. If the function returns NA, then we have forgotten to use the na.rm=TRUE function arguemnt. 
+sum(gpp, na.rm=TRUE)
 ```
 
 Ok, the value is above 1. So we do have data in the gpp variable. It's ok. 
@@ -151,40 +152,71 @@ print(gpp_fillvalue)
 
 From printing these, we can see that each extracted attribute has an "hasatt" and a "value". hasatt stands for "has attribute" and is either true or false. If it is true, the "value" holds the value. 
 
-We have now extracted all the data we need from the NetCDF file connection. We can now close the connection to the file. This frees up some computer memory for us. Note that we didn't need to do this in the last notebook for the "read.csv()" and "read.table()" functions which close the file automatically. 
+We have now extracted all the data we need from the NetCDF file connection. We can now close the connection to the file. This frees up some computer memory for us. Note that we didn't need to do this in the last notebook for the "read.csv()" and "read.table()" functions, which close the data file automatically. 
 
 ```{r}
 nc_close(ncfile)
 ```
 
-Now for a super useful little line of code. NetCDF files often have NA values that correspond to a very big or very samll number. For example, a common NA number is -9999.99. If we try to plot the gpp variable in R, the colour scale will expand to -9999.99 and so the map will be impossible to understand. Instead we want to set these -9999.99 values (or whatever the NetCDF's _FillValue is) to NA inside R. R will then not plot anything which is NA, and our plots will be human readable. 
+Now for a super useful little line of code. NetCDF files often have NA values that correspond to a very big or very samll number. For example, a common number to represent NA is -9999.99. If we try to plot the gpp variable in R, the colour scale will expand to -9999.99 and so the map will be impossible to understand. Instead we want to set these -9999.99 values (or whatever the NetCDF's _FillValue is) to NA inside R. R will then not plot anything which is NA, and our plots will be human readable. 
 
-The line of code below is short, but quite complex. What the line of code does, is use the square brackets to extract any values in the gpp variable which equal the value in gpp_fillvalues, and set it to NA. If you need to use this line of code in your own work, just copy and paste and change the variable names to the variable names in your work. 
+The line of code below is short, but quite complex. What the line of code does, is use the square brackets notation to extract any values in the gpp variable which equal the value in gpp_fillvalues, and set those extracted values to NA. If you need to use this line of code in your own work, just copy and paste and change the variable names to the variable names in your work. 
 
 ```{r}
 # replace netCDF fill values with NA's
 gpp[gpp==gpp_fillvalue$value] = NA
 ```
 
+Now that we have extracted all the data in our NetCDF file, we are ready to start making some maps of the data! 
 
+## Making our first map 
+The data inside a NetCDF file (and therefore the data in our variables in R which we have extracted from the NetCDF files) is a rectangular grid of numbers. In fact, if we have a time variable, then it is a 3D cube of data - imagine a rubix cube of data, but with the dimensions of our data instead of the normal 3x3x3 rubix cube. 
+
+Remember we extracted four data variables from the NetCDF file with the ncvar_get() function. Those variables were lat, lon, time, and gpp. 
+
+Let's remind ourselves of the dimensions of our data:
 
 ```{r}
 dim(gpp)
 ```
 
-## Making our first map 
+So 360 in the x dimension, 180 in the y dimension, and 360 in the z dimension. If we check back to the length of the variables from the print() function we can see this corresponds to lat, long and time. 
+
+This is just a matrix of data, so we can extract any subset of it using the square bracket notation. Let's extract the first time slice of the data, and save it in a variable called first_gpp_slice. 
 
 ```{r}
 first_gpp_slice = gpp[,,1]
+```
+
+Remember using the square bracket notation to slice data in the last R notebook? In that notebook, use said how for 2D data the format is some_variable[x_dimension,y_dimension]. This means to select the first row of the first column would be some_variable[1,1]. In that notebook we also mentioned that if we leave the places before or after the comma inside the square brackets blank (like this: some_variable[,1] or some_variable[1,]) that we select all of that column or all of that row. 
+
+Hopefully that is not too confusing so far. So we know our gpp variable contains lattitude x longitude x time. Therefore running gpp[,,1] means give me all lattitude and all longitude for the first time slice only. 
+
+Knowing all of this, if we run our trusty dim() function on our new variable first_gpp_slice, we should get results of 360 x 180 x 1, as we took all longtude and all lattitude, at the first time only (not at all time slices). So essentially we took the first layer off our rubix cube. 
+
+Lets check we get 360 x 180 x 1 with our dim() function. 
+
+```{r}
+dim(first_gpp_slice)
+```
+
+Ok, so we get 360 x 180, which is the same as 360 x 180 x 1. So we now have a single time slice stored in a matrix. We can easily make a picture from a matrix using the image function:
+
+```{r}
 image(first_gpp_slice)
 ```
+
+Cool! But there is an obvious problem - the world seems to be upside down. Luckily this is easily fixed. We just slightly modify how we are slicing the gpp variable. You see, when we write gpp[,,1] to represent "give me all the lattitude and all the longitude values for the first time slice", under the hood R is treating this the same as if we had written gpp[ 1:360 , 1:180 , 1 ]. Therefore to flip the matrix in the lattitude direction, we just change the 1:180 to 180:1 to reverse it. See below: 
 
 ```{r}
 flipped_first_gpp_slice = gpp[,180:1,1]
 image(flipped_first_gpp_slice)
 ```
 
+Ok, now we're cooking! This is a map of the first time slice of our gpp variable! But for it to be a decent map, we need a couple of things. First, it would be best to add a scale. It looks like the axes are currently just going from 0 to 1 as well - we probably want to change that. It might be useful to be able to change colour scales too. And maybe a title would be a good idea too. Let's set about modifying our plot. 
+
 ## Adding a legend 
+So it turns out we have an immediate problem. Adding a legend to the image() function is really hard. Doh! The image function is still really useful as a quick first look at a matrix of numbers though. However it just so happens that in the fields package, some kind R programmer has modified the image() function into a new function called image.plot(), which has an automatic colour bar. It also allows us to specify the labels of the x and y axis, so we can actually display lattitude and longitude rather than the strange 0 to 1 scale. Uncomment the install.packages line underneath to install the fields package, then run the library command to load the package and the make the map: 
 
 ```{r}
 # install.packages("fields")
@@ -192,74 +224,74 @@ library("fields")
 image.plot(lon, lat, flipped_first_gpp_slice)
 ```
 
-
-
-
+Cool! Looking better already. There is a useful function called map() in R which allows us to add country outlines. This is often a good idea to add, as it shows there is no data at all for Antarctica, Greenland, and the Sahara. Note the add=T (short for add=TRUE), which adds to the current plot. Try changing some of the function arguments to customise the plot. 
 
 ```{r}
 image.plot(lon, lat, flipped_first_gpp_slice)
-map(database = 'world', add = T, lwd=2)
+map(database = 'world', lwd=1.5, add = T, col='black')
 ```
 
 ## Changing colour pallets 
-
+There are a number of standard color palettes in R. The rainbow colour pallete is standard in image.plot(). However a number of recent scientific articles have pointed out that rainbow colour palletes can draw the eye to unimporant features as some color changes act like contours differently to different people. Therefore simpler colour pallets can often be better for displaying scientific data. Let's install the RColorBrewer package to give us access to a load of useful color palletes. The RColorBrewer packages gives us access to the brewer.pal() function. This allows us to give a number of breaks in the colour pallete we want (normally up to 9 or 10, depending on the pallete) as the first function argument, and the name of the colour pallete as the second argument. So brewer.pal(10, "RdBu") gives us a color pallete from red to blue with 10 breaks in it. This is cool, but we know low numbers for our gpp data are normally displayed with cold colours in environmental sciences, so we use the rev() function to reverse the order, making us a blue to red colour pallete. See below: 
 ```{r}
 # install.packages("RColorBrewer")
 library("RColorBrewer")
 image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(10, "RdBu")))
-map(database = 'world', add = T, lwd=2)
+map(database = 'world', add = T, lwd=1.5)
 ```
 
-
-https://earlglynn.github.io/RNotes/package/RColorBrewer/index.html
-
+You can find more about what color palletes are found in the RColorBrewer on this link ![](https://earlglynn.github.io/RNotes/package/RColorBrewer/index.html). Let's try the yellow-green-blue pallete instead, just for practise: 
 
 ```{r}
 image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")))
-map(database = 'world', add = T, lwd=2)
+map(database = 'world', add = T, lwd=1.5)
 ```
 
+Ok, now lets make the plot itself a bit better. Lets add a title, and remove the x and y labels using the main=, xlab= and ylab= function arguments we have already learnt. We can use our gpp_name variable that we extracted from the NetCDF file near the top of this script, and access it's contents by calling gpp_name$value. If all of this is seeming like an overwhelming amount to remember, bear in mind you can just copy and paste code from this document and just modify names. You don't have to remember all of this. There is no exam on R syntax :) 
 
-https://www.rdocumentation.org/packages/fields/versions/9.6/topics/image.plot
+If you change just these arguments and run the code you will find half the title has been chopped off the side of the plot! Aggghhh! This is because the title is quite long, and R by default has a fixed amount of padding around plots which our long title runs over. This is rarely a problem, but this is one of those exceptions! We can fix this by calling the par() function (short for plot PARameters) and change the mar=c() argument (short for MARgins). The default for this is par(mar=c(5.1, 4.1, 4.1, 2.1)). This is for graphic design reasons that I imagine someone spent ages deciding on. The numbers refer to the bottom, left, top and right hand margins respectively. Therefore changing the second or fouth number to a smaller value should fix our problem. 
 
+Finally, we want to add the units of our plot to the legend. To do this I googled the image.plot function and found this page ![](https://www.rdocumentation.org/packages/fields/versions/9.6/topics/image.plot) which tells us that the legend.lab= argument allows us to specify the text, the legend.line= argument moves the legend text to the side so it is not underneath the legend labels, and the legend.mar= expands the legend margin. Try changing the values and rerunning the code block several times to get a feeling for what each argument does. 
 
 ```{r}
-par(mar=c(3,3,3,3))
+par(mar=c(5.1,3,4.1,3))
 image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
-map(database = 'world', add = T, lwd=2)
+map(database = 'world', add = T, lwd=1.5)
 ```
 
-## Colourblind friends / printing in black and white friendly colors? 
-
-
-https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html
+## Colourblind friendly / printing in black and white friendly colors? 
+A final quick note on a set of colour palletes found in Python and Matlab called Viridis, Inferno, Magma and Cubhelix, which have become popular as they are colourblind friendly, black and white printer friendly (try printing a rainbow colour pallete in black and white - there ends up being several dark bands, making the colourmaps unusable in black and white) and perceptual (i.e. they don't have the random contouring effect in different peoples vision emphasizing different things). These are avaliable in the viridis package. Check out this link for more on how to use the package ![](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html), and see below for an example of using it: 
 
 ```{r}
 # install.packages("viridis")
-library(viridis)
+library("viridis")
 par(mar=c(3,3,3,3))
 image.plot(lon, lat, flipped_first_gpp_slice, col=viridis(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
-map(database = 'world', add = T, lwd=2)
+map(database = 'world', add = T, lwd=1.5)
 ```
 
 ## Saving plots 
+Finally, you might well want to save the plots for later use, use in reports or presentations, or whatever. Any plot (e.g. scatter graph, pie chart, map, etc) can be saved in R. 
 
+Saving plots in R requires 2 extra lines of code. First, you open a graphic device using one of the following functions: png(), jpep(), pdf(), tiff(). After this, you run your normal plotting code. Then after your plotting code, add the line dev.off() to close the graphics device. 
+
+Note that if you save plots as a pdf, you can then open them in Inkscape or Adobe Illustrator to modify further. 
 ```{r}
 png("gpp_map.png", width=10, height=5, units = 'in', res = 300)
 par(mar=c(3,3,3,3))
 image.plot(lon, lat, flipped_first_gpp_slice, col=plasma(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
-map(database = 'world', add = T, lwd=2)
+map(database = 'world', add = T, lwd=1.5)
 dev.off()
 ```
 
-## Making a difference map 
+Note you need to run the whole chunk with *Ctrl+Shift+Enter*, Running it line by line with *Ctrl+Enter* will cause problems. After running this code, you should get an output saying 
+null device
+          1
+which means it has sucessfully closed the graphics device. You should then have a plot saved in your working directory. 
 
-```{r}
-gpp1 = gpp[,180:1,1]
-gpp200 = gpp[,180:1,200]
-gpp_difference = gpp200 - gpp1
-image.plot(lon, lat, gpp_difference)
-```
+
+## End of Notebook 2
+Well done for reaching the end of Notebook 2. I'm genuinely proud of you - that was a lot of code. But you got through it, and if you understood even half of it you can now do a huge amount. As with the last R notebook, I recommend going through this code at least one more time and possibly several times. And definitely start trying to play with the code. Change bits on each line to see what happens. Get used to R throwing error messages, and get used to googling how to do things. From reading these guides you will now have a good idea of the sorts of things you can do with R.
 
 
 
