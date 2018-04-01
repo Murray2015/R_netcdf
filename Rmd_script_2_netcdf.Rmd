@@ -3,61 +3,136 @@ title: "R Notebook 2 - working with NetCDF data"
 output: html_notebook
 ---
 
-This is second R notebook on working with climate data. In the last notebook, we introduced the programming constructs a "variable" and a "function". We then worked with 1 and 2 dimensional ascii data to make some scatter plots. In this notebook, we will introduce new functions for opening and working with 3 dimensional data, and higher dimensional data. Let's get started! 
+Hello! This is second R notebook on working with climate data. In the last notebook, we introduced the programming constructs of a "variable" and a "function". We then worked with 1 and 2 dimensional ascii data to make some scatter plots. In this notebook, we will introduce new functions for opening and working with 3 dimensional data, and higher dimensional data. But don't panic, we will stil just be storing this new data in variables, and working with the data with functions, so you already know all the theory. Let's get started! 
 
-The first thing we always need to do is set our working directory to the folder where we have saved the data. 
+As mentioned in the last R notebook, the first thing we always need to do is set our working directory to the folder where we have saved the data. Otherwise R doesn't know where to look for the data.
 
 ```{r}
+# Set the working directory to the folder where the data is saved.
 setwd("~/Documents/scratch/R_netcdf")
 ```
 
 
 # 3 dimensional climate data - NetCDF files.
-It's unlikely you have heard of NetCDF as a file type. NetCDF files are like a stack of spreadsheets ontop of each other. See the picture below. 
+It's unlikely you have heard of NetCDF as a file type. NetCDF files are used for various types of climate data and geophysical data. NetCDF files are like a stack of spreadsheets ontop of each other, where the x and y variables are normally lattitude and longitude. See the picture below. 
 ![The structure of a netcdf file.](netcdf.gif)
 Often the X and Y variable refer to Lattitude and Longitude for climate data, although not always. Often a netcdf file is for the whole world, but they can just be for a part of the world. The random numbers in each square in the diagram are the variable of interest - this could be mean annual temperature, or rainfall, or ozone concentration, or anything. The time axis doesn't always exist in a netcdf file. If the time axis doesn't exist, the structure of the file is like just the first orange layer in the netcdf diagram above, without the pink and green layers.
 
-To work with netcdf files in R, you need to install a couple of packages. R is such a popular language for data analysis because it has thousands of packages which can be downloaded (for free!) with a single line of code. These packages range from forecasting time series for weather analysis or stock prices, to geospatial, to higher performance parallelisation routines, to..... you get the picture. If you can think of a scientific problem, there's probably already a package for it in R. 
+To work with netcdf files in R, you need to install a couple of packages. R is such a popular language for science and data analysis because it has thousands of packages which can be downloaded (for free!) with a single line of code. These packages range from forecasting time series for weather analysis or stock prices, to working with geospatial data, to higher performance parallelisation routines, to..... you get the idea. If you can think of a scientific problem, there's probably already a package for it in R. 
 
 In R, you install a package once using the "install.package()" function. This normally only needs to be done once on a computer. Then the package must be loaded into R with the "library()" function. This needs to be done every time you restart R. Let's load the ncdf4 package. 
 
 ```{r}
+# Install the "ncdf4" package from the internet. This normally only needs to be done a single time on a computer, and then it is installed forever. 
 install.packages("ncdf4")
 ```
 
 You should see a load of both black and red text flash by on the screen. The important bit is the last few lines, which should say thing have been loaded ok. Specifically, the final line should say "* DONE ([the package name])". The package has now been installed, but it still needs to be loaded into R (and loading the package needs to be done at the start of every script with a package in it). Let's do this now. 
 
 ```{r}
+# Load the "ncdf4" package into R. This needs to be done at the start of every R script that uses the package. 
 library("ncdf4")
 ```
-You shouldn't see any output from running this line of code, but we can now use the functions in the ncdf4 library. 
+You shouldn't see any output from running this line of code, but we can now use the functions in the ncdf4 package. 
 
-So we know that netcdf files for climate data often contain the whole world, but they sometimes just have a part of the world, such as just a few countries or just a section of ocean. The easiest way to find out is to open the file and look at the ranges of the different variables. Luckily this is quite easy in R. First we use the ncdf4 library to open the file, and then we use the print function to print a summary of the file. Lets do this next. Remember if you havn't run the install.packages() and the library() functions, then R will complain that it "can't find" the function - which means R doesn't know what these functions are. 
+What we are going to walk you through doing in the next few code chunks is the standard workflow for using a NetCDF file. This workflow is as follows:
+1. Open the NetCDF file in R with the "nc_open()" function
+2. Find out what is actually inside the netcdf file with the "print()" function
+3. Extract the variables we want to use from the NetCDF file using the "ncget_var()" function
+4. Close the NetCDF file in R with the "nc_close()" function.
+
+Each of the steps above is quite easy, so don't panic! 
+
+Ok, so we know that netcdf files for climate data often contain the whole world, but they sometimes just have a part of the world, such as just a few countries or just a section of ocean. The easiest way to find out is to open the NetCDF file and look at the ranges of different variables. Luckily this is quite easy in R. First we use the ncdf4 library to open the file, and then we use the print function to print a summary of the file. Lets do this now. Remember if you havn't run the install.packages() and the library() functions, then R will complain that it "can't find" the function - which means R doesn't know what these functions are because they havn't been loaded yet. 
 
 ```{r}
+# Open a connection to the NetCDF file and store this connection in a variable called ncfile. (don't worry about what we mean by a "connection" to the file, this will become clear throughout the expamples.)
 ncfile <- nc_open('2016722131556EnsembleGPP_MR_1deg.nc')
+# Print the header of the NetCDF file (i.e. print the NetCDF file's metadata)
 print(ncfile)
 ```
 
+Ouch, that's quite a lot of text! Take a moment to read it all. Even though the output looks confusing, this is the same sort of output you will get from every NetCDF file you open with R. 
 
+The first few lines of the output say:
+> 3 variables (excluding dimension variables):
+double time_bnds[bnds,time]
+float gpp[lon,lat,time]
+  (some other output)
+float std[lon,lat,time] 
+  (some other output)
 
+This tells us there are 3 variables in this netcdf file. The first variable is time_bnds, the second is gpp, and the third is std. You will often see "double" and "float". This refers to how many decimal places the computer is storing numbers as. The important bit is that it is just a normal decimal number.  
+
+The next paragraph tells us information about the variables
+
+>     4 dimensions:
+time  Size:360
+  (some other output)
+bnds  Size:2
+  (some other output)
+lon  Size:360
+  (some other output)
+lat  Size:180
+  (some other output)
+
+This tells us that the dimensions of the file and the standard lattitude (stored in the variable called "lat") and longitude (stored in the variable called "lon") and time (stored in the variable called "time"). There is a forth variable called bnds - don't worry about this, we dont need it. 
+
+After this, we have a long paragraph which starts with 
+
+> 13 global attributes:
+(loads of output)
+
+In a NetCDF file, the global attributes are normally useful things like who made the file, when it was made, a description, and other useful information which is often called meta-data. 
+
+We now understand a bit about our NetCDF file. The next step is to extract variables in the NetCDF file into variables in R. To do this we use the "ncvar_get()" function. The function arguments nc= refers to the NetCdf file, while the varid= function argument refers to the variable name *in the NetCDF* file. This is why we needed to use the print() function in the last step to find out the variable names. 
 
 ```{r}
-lat=ncvar_get(ncfile, 'lat')
-lon=ncvar_get(ncfile,'lon')
-time=ncvar_get(ncfile, "time")
-gpp = ncvar_get(ncfile, 'gpp')
+# Extract the 'lat' variable in the netcdf file, and store it in a variable called 'lat' in R.
+lat=ncvar_get(nc=ncfile, varid='lat')
+# Extract the 'lon' variable in the netcdf file, and store it in a variable called 'lon' in R.
+lon=ncvar_get(nc=ncfile,varid='lon')
+# Extract the 'time' variable in the netcdf file, and store it in a variable called 'time' in R.
+time=ncvar_get(nc=ncfile, varid="time")
+# Extract the 'gpp' variable in the netcdf file, and store it in a variable called 'gpp' in R.
+gpp = ncvar_get(nc=ncfile, varid='gpp')
 ```
 
-
-
+We now have 4 variables in R holding the information we extracted from the variables inside the NetCDF file. We want to know what is inside these variables. We could just print their whole contents to the screen by just running their name in the usual way. However we know that some of these variables might be very very big, and this might cause the computer to crash. A safer way is to use the "length()" function or the "dim()" function to see how long the variable is. Lets do this:
 
 ```{r}
+# Use the length function to see how long each variable is
 length(lat)
 length(lon)
 length(time)
 length(gpp)
 ```
+
+Ok, so that final variable gpp has 23 million entries. Probably a good thing we didn't just print that to the screen. (Also, if you're still thinking why are we using R not excel, try opening a 23million line long file in excel). R has two useful functions, "head()" and "tail()" for looking at the first few or last few entires of a really long file without printing everything. Lets have a quick look at the first few values of each variable. 
+
+```{r}
+# Use the head() function to see the first 5 entries of each variable, to help us understand out data. 
+head(lat)
+head(lon)
+head(time)
+head(gpp)
+```
+
+So it looks like the latitude variable goes from -90 upwards, i.e. from the south pole. That's fine. The longitude variable seems to go from -180 upwards, which sounds about right too. The time variable seems to be a bit crazy though! We should look back at the meta data from the print() function. If you look back, we find out that the time variable is in units of "days since 1582-10-14 00:00:00". Ok, so we are probably looking for a big number then. The last variable gpp seems to have lots of NA's (standing for not applicable). This might mean we have loaded it incorrectly, or it might just be because there is no data at that point. Lets look at the end of the variable:
+
+```{r}
+tail(gpp)
+```
+
+Hmm. The end of the variable also seems to be filled with NAs. We might now be slightly worried about whether all of the gpp variable is full of NAs. A quick way to check this without reading all 23 million values (not recommended) is to sum up the whole vector using the "sum()" function and see if it comes to a value greater than 0. **Note** the na.rm=T function argument which tells R to remove the NAs before summing, otherwise R will return NA. 
+
+```{r}
+sum(gpp, na.rm=T)
+```
+
+Ok, we do have data in the gpp variable. It's ok. 
+
+
 
 
 ```{r}
