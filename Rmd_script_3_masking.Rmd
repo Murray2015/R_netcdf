@@ -3,7 +3,17 @@ title: "R Notebook 3 - masking NetCDF data"
 output: html_notebook
 ---
 
-## Read in data from netcdf 
+Hello, and welcome to the final R climate notebook. In the first R notebook we explained what variables and function are (where we store climate data and how we operate on climate data, respectivly), we described using simple mathematical operations on variables (which therefore allows us to do things such as change units - if you have a matrix of temperatures in degrees celcius in a variable called temp, then temp+273.15 would change every temperature in temp to Kelvin), and we described how to plot simple time series data. In the second R notebook we explained the NetCDF file format and how we work with it in R, including the standard workflow of opening the file, viewing the header (metadata), extracting variables, extracting attributes, and closing the file. We then explained slicing out a specific time slice to make a map. We flipped the time slice, showed ways to plot with different colour palletes, and how to save plots. 
+
+In this final notebook, we will read some data from a NetCDF file and make a difference map to show the changes between two different time slices. We will then use our subsetting skills to slice our data into regions of interest, e.g. just the tropics or just a longitude slice. We then cover how to use a mask in a separate NetCDF file to mask out areas and regions of arbitrary shape, allowing us to subset geographic regions such as individual continents, or individual habitat areas. We also show how to find summary statistics for any of these subsetted areas. Finally, we show how to extract a time series at a paticular location, so we can see how a variable has changed over time. Let's get started! 
+
+
+In notebook 1, say why we are using R earlier 
+
+In notebook 1, mention not having to remember all this code as you can just copy and paste it, several times
+
+## Read in data from NetCDF
+We start by reading in our NetCDF data. We use the setwd() function to set the working directory to the location of our saved NetCDF file. We then use the library() function to load the ncdf4 package so we can open the NetCDF file. We use the no_open() function to open a connetion to the netcdf file and save it to a variable. We use print() to view the header of the NetCDF file, and the ncvar_get() function to extract the lat, lon, time and yield_mai variables - which we found the names for from the print() function. We then get the attributes we want with the ncatt_get() function, and close the file connection with the nc_close() function. Finally we change the _FillValues in the NetCDF file to NAs so R does not plot them, and extract the first yield slice and flip it upside down, ready for plotting. 
 ```{r}
 setwd("~/Documents/scratch/R_netcdf")
 library("ncdf4")
@@ -13,76 +23,99 @@ lat=ncvar_get(ncfile, 'lat')
 lon=ncvar_get(ncfile,'lon')
 time=ncvar_get(ncfile, "time")
 yield = ncvar_get(ncfile, 'yield_mai')
-length(lat)
-length(lon)
-length(time)
-length(yield)
-yield_name=ncatt_get(ncfile, "yield_mai", "long_name")
-print(yield_name)
 yield_units=ncatt_get(ncfile, "yield_mai", "units")
-print(yield_units)
 yield_fillvalue <- ncatt_get(ncfile,"yield_mai","_FillValue")
-print(yield_fillvalue)
 nc_close(ncfile)
 # replace netCDF fill values with NA's
 yield[yield==yield_fillvalue$value] <- NA
 first_yield_slice = yield[,180:1,1]
 ```
 
+Lets start by using the image function to see what the data looks like. 
 
 ```{r}
 image(first_yield_slice)
 ```
 
+hmm, that's a bad start. We seem to have no data in the slice. This normally means we have done something wrong, but there are occasions when it's just a dodgy file in one way or another. 
+
+Let's try checking the dimensions of the file to see if we can find out what is wrong. 
 
 ```{r}
 dim(first_yield_slice)
 ```
 
+Hmm, the dimensions seem to be what we are expecting. Maybe it's just a dodgy file. Let's try the second time slice instead. 
 
 ```{r}
 first_yield_slice = yield[,180:1,2]
 image(first_yield_slice)
 ```
 
+Oh. The second slice is fine. Must just be a dodgy file. 
 
 ## Making a difference map 
+A common thing to want to do is to see a change over time. One good way of doing this is to look at the difference between two time slices. Remember the difference just means to subtract the later time step from the earlier. Areas which are posative then show an increase over time in whatever variable we are considering, while negative values correspond to decreases over time in whatever variable we are considering. Let's try this now. 
 
 ```{r}
-gpp1 = gpp[,180:1,1]
-gpp200 = gpp[,180:1,200]
-gpp_difference = gpp200 - gpp1
-image.plot(lon, lat, gpp_difference)
+yield2 = yield[,180:1,2]
+yield3 = yield[,180:1,3]
+yield_difference = yield3 - yield2
+image.plot(yield_difference)
 ```
 
+
+Hmm. The map is pretty, and it's pretty cool. However it would be much easier to understand with a polar colour pallete - i.e. one that goes from one colour to white to another colour. The RColorBrewer package we introduced in the last notebook has several of these, including a very fetching red - white - blue one:
+
+```{r}
+library("RColorBrewer")
+image.plot(lon, lat, yield_difference, col=rev(brewer.pal(9,'RdBu')))
+```
+
+Sometimes there is a lot of increase but almost no decrease in something over time (or the opposite). This can end up with the white of the colour pallete not being centered over 0. A polar colour pallete such as this needs to be centered at zero, otherwise it gives a very skewed message (think about why). A useful cheat to handle this is to make a single square in our yield_difference matrix the posative largest absolute value in the whole matrix, and another square the negative largest absolute value in the whole matrix. This means the colourbar will be perfectly centred at 0. However note, you shouldn't do this before extracting any summary statistics about the data (because we are actually changing two values of the data), and you also shouldn't do this if the data is low resolution, as you may be able to actually see the values you have changed. 
+```{r}
+# Cheat at centering the colourbar at 0 by making the lowest right hand corner the posative maximum absolute value, and making the square next to it the negative maximum absolute value. Do not do this before taking summary statistics of the data, as we are actually changing the data to make it plot how we want it to. Also do not use with low resolution data, as you may be able to see the values you have changed. 
+yield_difference_altered = yield_difference
+yield_difference_altered[1,1] = max(abs(yield_difference_altered), na.rm=T)
+yield_difference_altered[2,1] = -max(abs(yield_difference_altered), na.rm=T)
+image.plot(lon, lat, yield_difference_altered, col=rev(brewer.pal(9,'RdBu')))
+```
+
+
+## Summary statistics on data 
+You might well want to take summary statistics for a grid of data. This is incredibly easy in R. Say, for example, you wanted to find the mean of our yield_difference, i.e. we wanted to find the average global change between slices 1 and 200:
+
+```{r}
+mean(yield_difference)
+```
+Oops, we forgot the na.rm=T function argument. Remember many functions in R return NA if there are *any* NAs in the data, as a warning there are NAs there. Let's rerun it:
+
+```{r}
+mean(yield_difference, na.rm=T)
+```
+
+Simlarly, lets find some other summary statistics for our slice:
+```{r}
+median(yield_difference, na.rm=T)
+sd(yield_difference, na.rm=T)
+max(yield_difference, na.rm=T)
+min(yield_difference, na.rm=T)
+```
 
 
 ## Subset only equatorial regions 
-
+You might want to find the mean (average) yield over a smaller area than the whole world. This is easy to do. 
 ```{r}
-tropic_capricorn = 90 - 23
-tropic_cancer = 90 + 23 
-tropics_yield_slice = yield[,tropic_cancer:tropic_capricorn,2]
+# Make a temporary slice with the data flipped the right way up. Makes everything less complicated! 
+temp_slice = yield[,180:1,2]
+tropic_capricorn = 90+23
+tropic_cancer = 90-23 
+tropics_yield_slice = yield[,tropic_capricorn:tropic_cancer,2]
 image(tropics_yield_slice)
 ```
+It might then be a smart idea to run summary statistics on just that tropics_yield_slice. Then you can find the average yield in the tropics. 
 
-## Summary statistics on data 
-
-```{r}
-mean(tropics_yield_slice)
-```
-
-
-```{r}
-mean(tropics_yield_slice, na.rm=T)
-```
-
-```{r}
-tropic_vector = as.vector(tropics_yield_slice)
-summary(tropic_vector)
-```
-
-
+A similar trick can be used to subset the polar regions, but for this we need to combine it with the concatenate function "c()". Remember the concatenate function sticks things together. In the example below, we need the concatenate function because the poles have a big gap between them, so to subset them into the same grid we get the north polar region with the 180:polar_north, and we get the south polar region with the polar_south:1, and then we concatenate them together with the c() function. Remember the grid will look strange because from the maps above it appears most of the polar land masses havn't been modelled. But you might need this for future tasks regardless. 
 
 ## Subset only polar regions 
 ```{r}
@@ -93,8 +126,9 @@ image(polar_yield_slice)
 ```
 
 ## Subset Longitude slices 
+
 ```{r}
-lat1 = 175
+lat1 = 
 lat2 = 180
 polar_yield_slice = yield[lat1:lat2,,2]
 image(polar_yield_slice)

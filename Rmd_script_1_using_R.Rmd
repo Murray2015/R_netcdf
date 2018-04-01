@@ -278,7 +278,7 @@ Easy! Lets make a quick scatter plot of this data. Note the use of a new functio
 plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]))
 ```
 
-The graph looks quite good, but with time series data like this it would be more normal to plot it as a line graph. This is done by changing the "type=" function argument. We can make the line thicker with the "lwd=" argument, and we might want to change the color. 
+The graph looks quite good, but with time series data like this it would be more normal to plot it as a line graph. Note "time series" data is any data measured at regularly spaced intervals. This is done by changing the "type=" function argument. We can make the line thicker with the "lwd=" argument, and we might want to change the color. 
 
 ```{r}
 plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]), type='l', lwd=2, col="lightgreen")

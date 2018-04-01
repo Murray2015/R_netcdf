@@ -67,19 +67,66 @@ faithful$eruptions
 ## ------------------------------------------------------------------------
 # Print the fifth row of the first column of the faithful dataset
 faithful[5,1]
-# Print the first 5 rows of the second column
+
+## ------------------------------------------------------------------------
+# Print the first 5 rows of the first column
 faithful[1:5, 1]
-# print the first 5 rows of all columns
-faithful[1:5, ]
+# Print rows 10 to 41 of the second column
+faithful[10:41,2]
+
+## ------------------------------------------------------------------------
+faithful[ ,2]
 
 ## ------------------------------------------------------------------------
 plot(x=faithful$eruptions, y=faithful$waiting)
 
 ## ------------------------------------------------------------------------
-?str
+# Change plot symbols
+plot(x=faithful$eruptions, y=faithful$waiting, pch=17)
 
 ## ------------------------------------------------------------------------
+# Change the color of the symbols. Don't forget to put quotation marks around "red", as it is a string of characters, and R likes strings of characters to be enclosed with quotation marks. Otherwise R would think red was a variable. 
+plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red")
+
+## ------------------------------------------------------------------------
+plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)")
+
+## ------------------------------------------------------------------------
+plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)", main="Old faithful eruption times", xaxs="i", yaxs="i", xlim=c(0,6), ylim=c(0, 120))
+
+## ------------------------------------------------------------------------
+plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)", main="Old faithful eruption times", xaxs="i", yaxs="i", xlim=c(0,6), ylim=c(0, 120))
+grid()
+
+## ------------------------------------------------------------------------
+?plot
+
+## ------------------------------------------------------------------------
+# Set the working directory, so R can find the data files.
 setwd("~/Documents/scratch/R_netcdf")
+
+## ------------------------------------------------------------------------
+# Read in the data
+my_data = read.table("global_co2_ann.out")
+
+## ------------------------------------------------------------------------
+# Quality check the data loading
+dim(my_data)
+str(my_data)
+
+## ------------------------------------------------------------------------
+# Set the column names in the dataframe stored in the variable called my_data
+names(my_data) = c("year", "co2")
+
+## ------------------------------------------------------------------------
+# Check that the data names have changed
+str(my_data)
+
+## ------------------------------------------------------------------------
+plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]))
+
+## ------------------------------------------------------------------------
+plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]), type='l', lwd=2, col="lightgreen")
 
 ## ------------------------------------------------------------------------
 knitr::purl("Rmd_script_1_using_R.Rmd")

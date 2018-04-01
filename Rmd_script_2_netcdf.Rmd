@@ -155,6 +155,7 @@ From printing these, we can see that each extracted attribute has an "hasatt" an
 We have now extracted all the data we need from the NetCDF file connection. We can now close the connection to the file. This frees up some computer memory for us. Note that we didn't need to do this in the last notebook for the "read.csv()" and "read.table()" functions, which close the data file automatically. 
 
 ```{r}
+# Close the NetCDF file connection
 nc_close(ncfile)
 ```
 
@@ -163,7 +164,7 @@ Now for a super useful little line of code. NetCDF files often have NA values th
 The line of code below is short, but quite complex. What the line of code does, is use the square brackets notation to extract any values in the gpp variable which equal the value in gpp_fillvalues, and set those extracted values to NA. If you need to use this line of code in your own work, just copy and paste and change the variable names to the variable names in your work. 
 
 ```{r}
-# replace netCDF fill values with NA's
+# replace netCDF _FillValues with NA's
 gpp[gpp==gpp_fillvalue$value] = NA
 ```
 
@@ -177,6 +178,7 @@ Remember we extracted four data variables from the NetCDF file with the ncvar_ge
 Let's remind ourselves of the dimensions of our data:
 
 ```{r}
+# Find the dimensions of the gpp variable
 dim(gpp)
 ```
 
@@ -185,31 +187,36 @@ So 360 in the x dimension, 180 in the y dimension, and 360 in the z dimension. I
 This is just a matrix of data, so we can extract any subset of it using the square bracket notation. Let's extract the first time slice of the data, and save it in a variable called first_gpp_slice. 
 
 ```{r}
+# Extract the first time slice from the gpp variable
 first_gpp_slice = gpp[,,1]
 ```
 
 Remember using the square bracket notation to slice data in the last R notebook? In that notebook, use said how for 2D data the format is some_variable[x_dimension,y_dimension]. This means to select the first row of the first column would be some_variable[1,1]. In that notebook we also mentioned that if we leave the places before or after the comma inside the square brackets blank (like this: some_variable[,1] or some_variable[1,]) that we select all of that column or all of that row. 
 
-Hopefully that is not too confusing so far. So we know our gpp variable contains lattitude x longitude x time. Therefore running gpp[,,1] means give me all lattitude and all longitude for the first time slice only. 
+Hopefully that is not too confusing so far. So we know our gpp variable contains lattitude x longitude x time. Therefore running gpp[,,1] means give me all lattitude and all longitude for the first time slice only. Obvious, you would change the 1 if you wanted a different time slice, e.g. gpp[,,53] would give the 53rd time slice. 
 
 Knowing all of this, if we run our trusty dim() function on our new variable first_gpp_slice, we should get results of 360 x 180 x 1, as we took all longtude and all lattitude, at the first time only (not at all time slices). So essentially we took the first layer off our rubix cube. 
 
 Lets check we get 360 x 180 x 1 with our dim() function. 
 
 ```{r}
+# Sanity check the dimensions of our first_gpp_slice. Should be 360 by 180
 dim(first_gpp_slice)
 ```
 
 Ok, so we get 360 x 180, which is the same as 360 x 180 x 1. So we now have a single time slice stored in a matrix. We can easily make a picture from a matrix using the image function:
 
 ```{r}
+# Make a quick plot of the first time slice. 
 image(first_gpp_slice)
 ```
 
 Cool! But there is an obvious problem - the world seems to be upside down. Luckily this is easily fixed. We just slightly modify how we are slicing the gpp variable. You see, when we write gpp[,,1] to represent "give me all the lattitude and all the longitude values for the first time slice", under the hood R is treating this the same as if we had written gpp[ 1:360 , 1:180 , 1 ]. Therefore to flip the matrix in the lattitude direction, we just change the 1:180 to 180:1 to reverse it. See below: 
 
 ```{r}
+# The map was upside down, so were we extract the first time slice again, but flip it's y axis as we extract it. This is what the 180:1 is doing. 180 is the greatest number and 1 is the least, therefore we are saying take the last value and put it first and take the second to last value and put it second, etc. It flips the matrix. 
 flipped_first_gpp_slice = gpp[,180:1,1]
+# Plot our new flipped matrix. 
 image(flipped_first_gpp_slice)
 ```
 
@@ -219,23 +226,31 @@ Ok, now we're cooking! This is a map of the first time slice of our gpp variable
 So it turns out we have an immediate problem. Adding a legend to the image() function is really hard. Doh! The image function is still really useful as a quick first look at a matrix of numbers though. However it just so happens that in the fields package, some kind R programmer has modified the image() function into a new function called image.plot(), which has an automatic colour bar. It also allows us to specify the labels of the x and y axis, so we can actually display lattitude and longitude rather than the strange 0 to 1 scale. Uncomment the install.packages line underneath to install the fields package, then run the library command to load the package and the make the map: 
 
 ```{r}
+# install the fields package, which as the image.plot() function. Uncomment the line below to run it for the first time.
 # install.packages("fields")
+# Load the fields package with the library() function
 library("fields")
+# Make a plot of our matrix using the image.plot() function, which adds a colourbar automatically. The first argument is the values to use for the x axis, the second argument is the values for the y axis, and the third argument is the actual data values. 
 image.plot(lon, lat, flipped_first_gpp_slice)
 ```
 
 Cool! Looking better already. There is a useful function called map() in R which allows us to add country outlines. This is often a good idea to add, as it shows there is no data at all for Antarctica, Greenland, and the Sahara. Note the add=T (short for add=TRUE), which adds to the current plot. Try changing some of the function arguments to customise the plot. 
 
 ```{r}
+# Same as the previous plot code but...
 image.plot(lon, lat, flipped_first_gpp_slice)
+# ... add a low resolution set of coastlines over the top for context. 
 map(database = 'world', lwd=1.5, add = T, col='black')
 ```
 
 ## Changing colour pallets 
 There are a number of standard color palettes in R. The rainbow colour pallete is standard in image.plot(). However a number of recent scientific articles have pointed out that rainbow colour palletes can draw the eye to unimporant features as some color changes act like contours differently to different people. Therefore simpler colour pallets can often be better for displaying scientific data. Let's install the RColorBrewer package to give us access to a load of useful color palletes. The RColorBrewer packages gives us access to the brewer.pal() function. This allows us to give a number of breaks in the colour pallete we want (normally up to 9 or 10, depending on the pallete) as the first function argument, and the name of the colour pallete as the second argument. So brewer.pal(10, "RdBu") gives us a color pallete from red to blue with 10 breaks in it. This is cool, but we know low numbers for our gpp data are normally displayed with cold colours in environmental sciences, so we use the rev() function to reverse the order, making us a blue to red colour pallete. See below: 
 ```{r}
+# Install the RColorBrewer package, to give us access to lots of extra colour pallets. Uncomment and run the line below the first time on a computer. 
 # install.packages("RColorBrewer")
+# Load the RColorBrewer into R with the library() function. 
 library("RColorBrewer")
+# The same plot and map commands as before, but with the prewer.pal(10,'RdBu) function, which gives us a Red to Blue color ramp with 10 levels. This is then enclosed with the rev() function, which reverses the order of the red-blue color ramp to give us a blue-red color ramp, which is more normal for Environmental sciences. 
 image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(10, "RdBu")))
 map(database = 'world', add = T, lwd=1.5)
 ```
@@ -243,6 +258,7 @@ map(database = 'world', add = T, lwd=1.5)
 You can find more about what color palletes are found in the RColorBrewer on this link ![](https://earlglynn.github.io/RNotes/package/RColorBrewer/index.html). Let's try the yellow-green-blue pallete instead, just for practise: 
 
 ```{r}
+# The same image.plot() and map() code as before, but with a yellow-green-blue color pallete.
 image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")))
 map(database = 'world', add = T, lwd=1.5)
 ```
@@ -254,7 +270,9 @@ If you change just these arguments and run the code you will find half the title
 Finally, we want to add the units of our plot to the legend. To do this I googled the image.plot function and found this page ![](https://www.rdocumentation.org/packages/fields/versions/9.6/topics/image.plot) which tells us that the legend.lab= argument allows us to specify the text, the legend.line= argument moves the legend text to the side so it is not underneath the legend labels, and the legend.mar= expands the legend margin. Try changing the values and rerunning the code block several times to get a feeling for what each argument does. 
 
 ```{r}
+# Change the margins of the plot, to stop to padding cutting the ends off our very long title.
 par(mar=c(5.1,3,4.1,3))
+# Same image.plot() and map() code as last time, but remove x and y labels (with xlab= and ylab=), add a main title (with main=), add a legend lable (with legend.lab=), and adjust the location and padding of the legend label so it is not under the legend text (with legend.line= and legend.mar=)
 image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
 ```
@@ -263,8 +281,11 @@ map(database = 'world', add = T, lwd=1.5)
 A final quick note on a set of colour palletes found in Python and Matlab called Viridis, Inferno, Magma and Cubhelix, which have become popular as they are colourblind friendly, black and white printer friendly (try printing a rainbow colour pallete in black and white - there ends up being several dark bands, making the colourmaps unusable in black and white) and perceptual (i.e. they don't have the random contouring effect in different peoples vision emphasizing different things). These are avaliable in the viridis package. Check out this link for more on how to use the package ![](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html), and see below for an example of using it: 
 
 ```{r}
+# Install the colourblind and black and white printer firneds viridis colour palletes
 # install.packages("viridis")
+# load the viridis package 
 library("viridis")
+# Same par(), image.plot() and map() functions as before, but using the viridis colour pallete.
 par(mar=c(3,3,3,3))
 image.plot(lon, lat, flipped_first_gpp_slice, col=viridis(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
@@ -277,10 +298,13 @@ Saving plots in R requires 2 extra lines of code. First, you open a graphic devi
 
 Note that if you save plots as a pdf, you can then open them in Inkscape or Adobe Illustrator to modify further. 
 ```{r}
+# Open a png graphcs device to export a plot, and make a plot which is 10 inches by 5 inches, and save at a resolution of 300 dpi.
 png("gpp_map.png", width=10, height=5, units = 'in', res = 300)
+# Same par(), image.plot() and map() functions as before, but using the plasma color pallete from the viridis package.
 par(mar=c(3,3,3,3))
 image.plot(lon, lat, flipped_first_gpp_slice, col=plasma(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
+# close the png graphics device to complete exporting the plot. 
 dev.off()
 ```
 
@@ -296,5 +320,5 @@ Well done for reaching the end of Notebook 2. I'm genuinely proud of you - that 
 
 
 ```{r}
-knitr::purl("Rmd_script_2_NetCDF.Rmd")
+knitr::purl("Rmd_script_2_netcdf.Rmd")
 ```
