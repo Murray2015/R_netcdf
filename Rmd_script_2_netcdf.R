@@ -145,5 +145,5 @@ map(database = 'world', add = T, lwd=1.5)
 dev.off()
 
 ## ------------------------------------------------------------------------
-knitr::purl("Rmd_script_2_NetCDF.Rmd")
+knitr::purl("Rmd_script_2_netcdf.Rmd")
 

@@ -6,10 +6,12 @@ output: html_notebook
 Hello! This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook introducing R as a scientific computing language through climate data. When you execute code within the notebook by clicking in the grey boxes and pressing *Ctrl+Enter*, the results appear beneath the code. This document needs to be opened and run in R studio. 
 
 # Introducing R 
-R is quite easy to start working with. R is a fully fledged programming language and therefore can be hugely powerful for analysing data. It allows you to analyse much bigger datasets than are possible in other programs (such as Microsoft Excel), and there are many jobs for people skilled in R and analysing data. This series of scripts will introduce some parts of R, will teach finding summary statistics (such as mean, median, standard deviation etc.), and will teach how to make a number of different types of graphs and maps. This specific R notebook will show you some of the basics of R to allow you to get started using R as a programming language for science. 
+R is quite easy to start working with. R is a fully fledged programming language and therefore can be hugely powerful for analysing data. It allows you to analyse much bigger datasets than are possible in other programs (such as Microsoft Excel), and there are many jobs for people skilled in R and analysing data. This series of scripts will introduce some parts of R, will teach finding summary statistics (such as mean, median, standard deviation etc.), and will teach how to make a number of different types of graphs and maps. This specific R notebook will show you some of the basics of R to allow you to get started using R as a programming language for science, so you can discover cool stuff and make publication quality figures quickly and easily. 
 
 ## Programming 101 part 1 - the variable, and mathematical operations. 
-Lets jump straight in. The first important concept in programming you need to know to be able to use R is the concept of a "variable". A variable is like an postal address. It refers to a location in computer memory. It is a location that we can store almost anything. (So just like a house at a postal address - you could store almost anything in a house, you could store a single pair of shoes in a house, or you could store 1000 DVDs in a house, or whatever.). Below this paragraph is the first code chunk you have seen (which is what we call the gray box with the R code in below). In this first code chunk, we make a variable called my_var and store the number 144 in it. 
+Lets jump straight in. We are going to teach you a few bits of programming to make your life easier. Don't panic, we are not about to ask you to write loads of complex code or build new software or anything like that. **We don't actually expect you to remember any of this code or any of these commands**. You will always have these R notebooks, so you can just copy and paste code and modify it as you need. 
+
+The first important concept in programming you need to know to be able to use R is the concept of a "variable". A variable is like an postal address. It refers to a location in computer memory. It is a location that we can store almost anything. (So just like a house at a postal address - you could store almost anything in a house, you could store a single pair of shoes in a house, or you could store 1000 DVDs in a house, or whatever.). Below this paragraph is the first code chunk you have seen (which is what we call the gray box with the R code in below). In this first code chunk, we make a variable called my_var and store the number 144 in it. 
 
 ```{r}
 my_var = 144 # creates a variable called "my_var" and stores the number 144 in it.
@@ -90,6 +92,7 @@ my_fav_sentence = "climate data is cool"
 my_fav_sentence 
 ```
 or you can store several numbers in a data holder called a "vector". For example, we could store the Fibbonachi sequence 
+
 ```{r}
 fib = c(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
 fib
@@ -109,7 +112,7 @@ my_mat
 ```
 
 ### Ok, you can store lots of things in a variable. This is kinda boring. 
-I know, this hasn't been interesting so far. But if you don't know the rules of naming variables in R and how to use them, you can't do very much. Lets move onto something more interesting. Lets get a small dataset, and make some graphs. 
+I know, this hasn't been interesting so far. But if you don't know the rules of naming variables in R and how to use them, you can't do very much. Also note that we can now do simple or complex mathematical operations on a whole matrix of numbers at the same time. This can allow us to calculate new quantities super quickly, or change units for all of our data at the same time, etc. Lets move onto something more interesting. Lets get a small dataset, and make some graphs. 
 
 ```{r}
 # The "data()" function is a special function in R that loads a small practise dataset for you into a variable of the same name as between the quotes (in this case, "faithful"). This is not the normal way to load data into R, so don't worry about it! 

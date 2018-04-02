@@ -3,11 +3,12 @@ title: "R Notebook 2 - working with NetCDF data"
 output: html_notebook
 ---
 
-Hello! This is the second R notebook on working with climate data. In the last notebook, we introduced the programming constructs of a "variable" and a "function". We then worked with 1 and 2 dimensional ascii data to make some scatter plots. In this notebook, we will introduce new functions for opening and working with a type of file called a NetCDF file, which contains 3 dimensional and higher dimensional data. But don't panic, we will stil just be storing this new data in variables, and working with the data with functions, so you already know all the theory. Let's get started! 
+Hello! This is the second R notebook on working with climate data. In the last notebook, we introduced the programming constructs of a "variable" and a "function". We then worked with 1 and 2 dimensional ascii data to make some scatter plots. In this notebook, we will introduce new functions for opening and working with a type of file called a NetCDF file, which contains 3 dimensional and higher dimensional data. But don't panic, we will stil just be storing this new data in variables, and working with the data with functions, so you already know all the theory. **Just to remind you, if you are feeling like there is loads of code to remember and it's a bit overwhelming, you don't have to remember the code at all**. The idea is that you can copy and paste the code and alter it to do what you want to do.  
+
+Anyway, let's get started! 
 
 
 # 3 dimensional climate data - NetCDF files.
-
 As mentioned in the last R notebook, the first thing we always need to do is set our working directory to the folder where we have saved the data. Otherwise R doesn't know where to look for the data. We run the code in the gray code chunk below by clicking in the gray box and pressing *Ctrl+Enter* (assuming you have opened this document in R studio). 
 
 ```{r}
