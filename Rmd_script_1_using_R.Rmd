@@ -3,12 +3,12 @@ title: "R Notebook 1 - Using R and plotting ASCII data"
 output: html_notebook
 ---
 
-Hello! This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook introducing R as a scientific computing language through climate data. When you execute code within the notebook by clicking in the grey boxes and pressing *Ctrl+Enter*, the results appear beneath the code. This document needs to be opened and run in R studio. 
+Hello! This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook introducing R as a scientific computing language through climate data. When you execute code within the notebook by clicking in the grey boxes and pressing *Ctrl+Enter*, the results appear beneath the code. This document needs to be opened and run in R studio. If you open it in any other program (e.g. a web browser) you will be able to see the code, but not be able to change it, play with it or run it. You will just see the results from when I ran and compiled this document. 
 
 # Introducing R 
-R is quite easy to start working with. R is a fully fledged programming language and therefore can be hugely powerful for analysing data. It allows you to analyse much bigger datasets than are possible in other programs (such as Microsoft Excel), and there are many jobs for people skilled in R and analysing data. This series of scripts will introduce some parts of R, will teach finding summary statistics (such as mean, median, standard deviation etc.), and will teach how to make a number of different types of graphs and maps. This specific R notebook will show you some of the basics of R to allow you to get started using R as a programming language for science, so you can discover cool stuff and make publication quality figures quickly and easily. 
+R is quite easy to start working with. R is a fully fledged programming language and therefore can be hugely powerful for analyzing data. It allows you to analyse much bigger datasets than are possible in other programs (such as Microsoft Excel), and there are many jobs for people skilled in R and analyzing data. This series of three R notebooks will introduce some parts of R, will teach finding summary statistics (such as mean, median, standard deviation etc.), and will teach how to make a number of different types of graphs and maps. This specific R notebook will show you some of the basics of R to allow you to get started using R as a programming language for science, so you can discover cool stuff and make publication quality figures quickly and easily. 
 
-## Programming 101 part 1 - the variable, and mathematical operations. 
+## R programming 101 part 1 - the variable. 
 Lets jump straight in. We are going to teach you a few bits of programming to make your life easier. Don't panic, we are not about to ask you to write loads of complex code or build new software or anything like that. **We don't actually expect you to remember any of this code or any of these commands**. You will always have these R notebooks, so you can just copy and paste code and modify it as you need. 
 
 The first important concept in programming you need to know to be able to use R is the concept of a "variable". A variable is like an postal address. It refers to a location in computer memory. It is a location that we can store almost anything. (So just like a house at a postal address - you could store almost anything in a house, you could store a single pair of shoes in a house, or you could store 1000 DVDs in a house, or whatever.). Below this paragraph is the first code chunk you have seen (which is what we call the gray box with the R code in below). In this first code chunk, we make a variable called my_var and store the number 144 in it. 
@@ -17,15 +17,26 @@ The first important concept in programming you need to know to be able to use R 
 my_var = 144 # creates a variable called "my_var" and stores the number 144 in it.
 ```
 
-To run the code above, you need to click in the gray box and press *Ctrl+Enter*. You shouldn't see any output underneath the gray box, but what has happened is that R has stored the number 144 somewhere in your computer's memory, and given that space in memory the address "my_var". The rules for creating a variable are simple:
-* Variable names can have letters, numbers, full stops, or underlines. Don't use any other characters.
-* Variable names must start with a letter (they cannot start with a number)
-* Variable names must not contain a space or any other characters
-So "my_var", "My_var", "MY_VAR", "My_var1" are all valid variable names. "my.var" or "My.var" would also be valid variable names, but full stops can be used for other things in the R language, so I generally recommdend not using full stops in variables names even though you can. 
-Invalid variable names (that will cause R to throw an error) would be "1my_var" (because it starts with a letter) or "my_var#1" (because it contains a character which isn't a letter, number, full stop or underline)
-Lastly, variable names do not have to have the words "my" and "var" in them. General advice is to call your variable a name which gives an idea of what is contained inside it. If you wanted to store the value of pi to 3 decimal places, the variable name "pi_3dp" might be a good choice. If you had some climate data from a Global Climate Model that you were going to store in a variable, calling that variable "GCM_data", or "gcm_data_1" might be sensible. 
+ 
+To run the code above, you need to click in the gray box and press *Ctrl+Enter* (This assumes you have this document open in R studio, and not in a web browser). You shouldn't see any output underneath the gray box, but what has happened is that R has stored the number 144 somewhere in your computer's memory, and given that space in memory the address "my_var". 
+
+The rules for creating variables are simple:
+
+*  Variable names can have letters, numbers, full stops, or underlines. Don't use any other characters. 
+*  Variable names must start with a letter (they cannot start with a number)
+*  Variable names must not contain a space or any other characters
+
+
+So "my_var", "My_var", "MY_VAR", "My_var1" are all valid variable names. 
+
+
+Invalid variable names would be "1my_var" (because it starts with a letter) or "my_var#1" (because it contains a character which isn't a letter, number, full stop or underline)
+
+
+Lastly, variable names do not have to have the words "my" and "var" in them. General advice is to call your variable a name which gives an idea of what is contained inside it. E.g. if you had some climate data from a Global Climate Model that you were going to store in a variable, calling that variable "GCM_data", or "gcm_data_1" might be sensible. 
 
 The structure of how to store something in a variable is as follows:
+
 > [variable name] [equals sign] [data you want to store in the variable]
 
 The equals sign is not the equals sign from maths. In R, the equals sign is the "Assignment operator" that assigns the data on the right hand side, to the variable on the left hand side. 
@@ -36,16 +47,18 @@ Once you have made a variable, you can access whatever is stored in that variabl
 my_var
 ```
 
-If you run this code chunk by clicking in the gray box above and pressing *Ctrl+Enter*, you should see an output underneath that looks something like "[1] 144". The "[1]" is unimportant - it just shows that this is output by R rather than what we typed in. The "144" is the important bit - the computer went to someplace in memory and retrieved that value for us. We can now do useful things with that data. (Note if you didn't see this output, you probably havn't run the first code chunk where we made the variable in the first place).
+If you run this code chunk by clicking in the gray box above and pressing *Ctrl+Enter*, you should see an output underneath that looks something like "[1] 144". The "[1]" is unimportant - it just shows that this is output by R rather than what we typed in. The "144" is the important bit - the computer went to someplace in memory and retrieved that value for us. We can now do useful things with that data. (Note if you didn't see this output, you probably haven't run the first code chunk where we made the variable in the first place).
 
-Storing a single number isn't very useful if we can't do anything with that. Luckily the whole point of a variable is that we can reuse it. All the standard mathematical operations can be done on a variable. 
+## R programming 101 part 2 - basic maths.
+
+Storing a single number isn't very useful if we can't do anything with that. The whole point of a variable is that we can *reuse* it. All the standard mathematical operations can be done on a variable. 
 
 ```{r}
 # For example, we can add a number to a variable like this:
 my_var + 4
 ```
 
-Note in the above code chunk there is a "#" symbol. This is called a "comment". Comments in your code allow you to write notes to yourself or to other people. If R sees the "#" symbol, it consideres everything on the line after the '#' to be a comment and ignores it. 
+Note in the above code chunk there is a "#" symbol and some text. This is called a "comment". Comments in your code allow you to write notes to yourself or to other people. If R sees the "#" symbol, it considers everything on the line after the '#' to be a comment and ignores it. 
 
 Lets look at the rest of the mathematical operations on variables: 
 
@@ -62,9 +75,9 @@ my_var / 12
 my_var^2
 ```
 
-Note you can run each line in the above code chunk by pressing *Ctrl+Enter*, or you can run all the code in the code chunk by pressing *Ctrl+Shift+Enter*. 
+Note you can run each line in the above code chunk by pressing *Ctrl+Enter*, or you can run all the code in the code chunk by pressing *Ctrl+Shift+Enter* (if it looks like all 5 lines are separate blocks of code already, you probably haven't opened this document in R studio!). 
 
-You can also store the result of mathematical operations in a new variable. Lets try some variations of that: 
+You can also store the result of mathematical operations in a new variable. Let's try some variations of that: 
 
 ```{r}
 # Create a new variable and store the value of Pi in it 
@@ -75,11 +88,13 @@ radius = 5
 circle_area = pi_3dp * radius^2
 ```
 
-You shouldn't see any output from this yet. We have just stored the circle's area in a variable called "circle_area". We havn't yet printed it to our screen. We can see the value in this variable by running just the variable name on it's own in a code chunk. 
+You shouldn't see any output from this yet. We have just stored the circle's area in a variable called "circle_area". We haven't yet printed it to our screen. We can see the value in this variable by running just the variable name on it's own in a code chunk. 
 
 ```{r}
+# Print the contents of circle_area to the screen
 circle_area
 ```
+
 So our circle with radius 5 has an area of 78.55 units squared. 
 
 ### Ok I get it, but what else can be stored in a variable? 
@@ -91,23 +106,31 @@ my_fav_sentence = "climate data is cool"
 # Print the contents of the varible
 my_fav_sentence 
 ```
-or you can store several numbers in a data holder called a "vector". For example, we could store the Fibbonachi sequence 
+
+Or you can store several numbers in a data holder called a "vector". For example, we could store the Fibonacci sequence 
 
 ```{r}
+# Make a vector containing the start of the Fibonacci sequence
 fib = c(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+# Print the contents of the fib variable to the screen
 fib
 ```
+
 A vector is made with the concatenate function. This has the form "c()", where any number of "things" can go in between the brackets. These things must be separated by a comma. We will see this function many times in this series of R notebooks.
 
 The concatenate function is useful because we can apply mathematical operations to everything inside the vector at the same time. For example to double every number in the "fib" variable, all we need to do is:
+
 ```{r}
+# Multiply every number inside the fib variable by 2.
 fib * 2
 ```
 
 We could also store a 2 dimensional matrix of numbers in a variable 
 
 ```{r}
+# Create a matrix of test data
 my_mat = matrix(1:12, nrow=3)
+# Print the matrix to the screen
 my_mat
 ```
 
@@ -119,9 +142,9 @@ I know, this hasn't been interesting so far. But if you don't know the rules of 
 data("faithful")
 faithful
 ```
-This is a tiny dataset (only 272 rows long) of eruptions from the Old Faithful guyser in Yellowstone National Park, USA, that has been stored in the variable faithful. NOTE we did not use our normal [variable name][equals sign][data] format to make the variable. This weird way to making a variable and storing a dataset in it only applies to this "data()" function. Do not worry about it. We will show you how to read a dataset into R properly in the second R notebook. All that matters right now is that we have a small dataset stored in a variable called "faithful".
+This is a tiny dataset (only 272 rows long) of eruptions from the Old Faithful geyser in Yellowstone National Park, USA, that has been stored in the variable faithful. NOTE we did not use our normal [variable name][equals sign][data] format to make the variable. This weird way to making a variable and storing a dataset in it only applies to this "data()" function. Do not worry about it. We will show you how to read a dataset into R properly in the second R notebook. All that matters right now is that we have a small dataset stored in a variable called "faithful".
 
-As we don't know much about the dataset we have just loaded into the "faithful" variable, lets use two functions to explore what the faithful data is. The first function is the "dim()" function, which tells us the dimensions of the data (i.e. the number of rows and columns). The second function is the "str()" function, short for structure. These two functions are super useful when you have new data and you want to work out how to use it / how to plot it / how to summarise it / etc. 
+As we don't know much about the dataset we have just loaded into the "faithful" variable, lets use two functions to explore what the faithful data is. The first function is the "dim()" function, which tells us the dimensions of the data (i.e. the number of rows and columns). The second function is the "str()" function, short for structure. These two functions are super useful when you have new data and you want to work out how to use it / how to plot it / how to summarize it / etc. 
 
 ```{r}
 # Find the dimensions of the data stored in the faithful variable
@@ -132,14 +155,15 @@ This tells us that the data stored in the faithful variable has 272 rows and 2 c
 Lets get a little more information about the faithful data with the "str()" function
 
 ```{r}
+# Print the structure of the faithful variable to the screen
 str(faithful)
 ```
 
-So this tells us that the data inside the "faithful" variable is something called a dataframe. Like the dim function, the str() function tells us there are 272 rows and 2 columns. It tells us that the two columns are called "eruptions" and "waiting". It tells us that all the data in both the eruptions column and the waiting column are numbers. This means the data can be immediatly plotted! And finally the str() function shows us the first few entries in each column. 
+So this tells us that the data inside the "faithful" variable is something called a dataframe. Like the dim function, the str() function tells us there are 272 rows and 2 columns. It tells us that the two columns are called "eruptions" and "waiting". It tells us that all the data in both the eruptions column and the waiting column are numbers. This means the data can be immediately plotted! And finally the str() function shows us the first few entries in each column. 
 
 Lets make a scatter graph plotting the eruption times on the x axis, and the waiting times on the y axis. To be able to do this we need to know how to plot on two axes, and we need to know how to get at the data in each column of a dataframe. But first, we should probably also talk about what a dataframe is. 
 
-### Dataframes 
+### R programing 101 part 3 - subsetting dataframes or matries. 
 In R, the most common way to store data is in a dataframe. This is kind of like an excel spreadsheet, in that it has rows and columns. It is much more powerful than excel though, as it can have millions of rows of data without crashing, while excel does not manage such big datasets.
 
 You can access data in dataframes in a couple of different ways. The first way is to use the "$" symbol and the column name to extract the whole column. This is most often useful for plotting, when plotting all of one column against another is a common thing to want to do:
@@ -149,7 +173,9 @@ You can access data in dataframes in a couple of different ways. The first way i
 faithful$eruptions
 ```
 
-The second way to extract data from a dataframe is with the square bracket notation. In the square bracket notation (which will be very useful for working with climate data in R notebook 2 and 3) the first number specifies the row and the second number specifies the column. See below: 
+The second way to extract data from a dataframe is with the square bracket notation. This will be very useful later, as this is also how we extract subsets of data from matrices, which will will meet in R Notebook 2 and R Notebook 3. 
+
+In the square bracket notation the first number specifies the row and the second number specifies the column. See below: 
 
 ```{r}
 # Print the fifth row of the first column of the faithful dataset
@@ -168,6 +194,7 @@ faithful[10:41,2]
 Lastly, if we leave the rows or the columns space blank, it means all rows (or all columns). Therefore to print all rows of the second column, we can do this:
 
 ```{r}
+# Select all of the second column in the dataset (this is equivalent to faithful$waiting)
 faithful[ ,2]
 ```
 
@@ -176,12 +203,13 @@ So note that we should get the same results for typing faithful[, 2] or for typi
 We now know everything we need to be able to plot the faithful data. The basic "plot()" function takes two main arguments, the series of numbers for the x axis, and the series of numbers for the y axis: 
 
 ```{r}
+# Make a scatter plot of old faithful eruptions
 plot(x=faithful$eruptions, y=faithful$waiting)
 ```
 
 Woooooooooo, you've made your first R plot! 
 
-This is a good time to talk about functions. I have mentioned "functions" several times already without explaining what they are. So far, we have used the concatendate function "c()" to make a vector, the dimensions function "dim()" to find the dimensions of some data, the structure function "str()" to find more information about a dataset, and now the "plot()" function for plotting a scatter graph. 
+This is a good time to talk about functions. I have mentioned "functions" several times already without explaining what they are. So far, we have used the concatenate function "c()" to make a vector, the dimensions function "dim()" to find the dimensions of some data, the structure function "str()" to find more information about a dataset, and now the "plot()" function for plotting a scatter graph. 
 
 In R, a function has the general structure of the function name, open brackets, then a series of one or more function arguments separated by commas. Like this:
 > a_function(argument1=a, argument2=b, argument3=c, argument4=d)
@@ -198,7 +226,7 @@ For the plot function the first two arguments are the x and y data. But there ar
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17)
 ```
 
-There are loads of symbols - google "plot pch in R" to find out others. 
+There are loads of symbols - Google "plot pch in R" to find out others. 
 
 Then lets change the color of the points
 
@@ -210,26 +238,30 @@ plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red")
 So far we have changed the "pch" and "col" function arguments. The plot is looking better. But those axes labels don't look great. Lets change those. 
 
 ```{r}
+# Use extra function arguments in the plot() function to change the axis labels.
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)")
 ```
 
-Now lets add a title with the "main" argument. Also, be default R addes a tiny bit of white space at the start and end of axes. Some people hate this, and some love it. It is personal preference. It can be turned on and off with the "xaxs" and "yaxs" arguments. Finally, often you want to control what values axes start from and finish at. The xlim and ylim function arguments control that. Be careful to use the concatenate function "c()" for the start and end values. 
+Now lets add a title with the "main" argument. Also, be default R adds a tiny bit of white space at the start and end of axes. Some people hate this, and some love it. It is personal preference. It can be turned on and off with the "xaxs" and "yaxs" arguments. Finally, often you want to control what values axes start from and finish at. The xlim and ylim function arguments control that. Be careful to use the concatenate function "c()" for the start and end values. 
 
 ```{r}
+# Use extra function arguemnts for the plot() function to add a title, remove excess white space, and change the limits of the plot. 
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)", main="Old faithful eruption times", xaxs="i", yaxs="i", xlim=c(0,6), ylim=c(0, 120))
 ```
 
 Finally, lets add a subtle grid. Note that when running this, you have to use the *Ctrl+Shift+Enter* to run all the code in the chunk, rather than using *Ctrl+Enter* twice. There is a technical reason behind this, but don't worry about it. Just remember to run the whole code chunk.
 
 ```{r}
+# Add a subtle grid to the plot. Note that this whole code chunk must be run at the same time with the Ctrl+Shift+Enter command, rather than running one line at a time with Ctrl+Enter, which will cause an error due to the plot already being printed to the screen.
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)", main="Old faithful eruption times", xaxs="i", yaxs="i", xlim=c(0,6), ylim=c(0, 120))
 grid()
 ```
 
 
-You might forget how to use the "plot()" function, in which case you can either google it (googling R problems is *very* recommended. Websites like stackoverflow.com have the answers to almost every programming question, like, ever), or you can use R's internal documentation pages. R's internal documentation can be accessed by putting a question mark before the function name:
+You might forget how to use the "plot()" function, in which case you can either Google it (googling R problems is *very* recommended. Websites like stackoverflow.com have the answers to almost every programming question, like, ever), or you can use R's internal documentation pages. R's internal documentation can be accessed by putting a question mark before the function name:
 
 ```{r}
+# Open R's internal documentation on the plot function() - this is useful for when you don't have an internet connection. If you do have an internet connection, the internet is often more useful for R questions than the internal documentation, which is sometimes not very clearly written.
 ?plot
 ```
 
@@ -237,7 +269,7 @@ You might forget how to use the "plot()" function, in which case you can either 
 It feels like time to start working with real climate data. In this section, we will revise what we have learnt about storing data inside a variable, and about functions. We will learn a couple of new functions to change the folder that R looks inside to find data, and a new function to read in data from a file. Lets get started! 
 
 ### ASCII
-You might have heard of "ascii". Ascii stands for the "American Standard Code for Information Interchange". Ascii is data stored in english letters, numbers, and a few special characters. Ascii data is normally found in files with the extensions .txt or .asc. R likes working with ascii data. 
+You might have heard of "ASCII". ASCII stands for the "American Standard Code for Information Interchange". ASCII is data stored in English letters, numbers, and a few special characters. ASCII data is normally found in files with the extensions .txt or .asc. R likes working with ASCII data. 
 
 The easiest way to organize data files in R is to have the R script (i.e. this document you are reading right now) and the data files all in the same folder on your computer. This folder is then called your "working directory" (directory is another name for folder). In R, you use the "setwd()" (which is short for set working directory) function to set the working directory. Inside the quotation marks below, put the folder name where your data is. 
 
@@ -246,7 +278,7 @@ The easiest way to organize data files in R is to have the R script (i.e. this d
 setwd("~/Documents/scratch/R_netcdf")
 ```
 
-Once you have set your working directory, you can read in a file to R. For ascii data, the most common functions for reading in data are the "read.csv()" or "read.table()" functions. read.csv() is good for comma separated value files, while read.table is good for space separated files. There are many other functions in R for reading in other data (e.g. excel files) - you can find out about those by googling them. Anyway, lets read in some data:
+Once you have set your working directory, you can read in a file to R. For ASCII data, the most common functions for reading in data are the "read.csv()" or "read.table()" functions. read.csv() is good for comma separated value files, while read.table is good for space separated files. There are many other functions in R for reading in other data (e.g. excel files) - you can find out about those by googling them. Anyway, lets read in some data:
 
 ```{r}
 # Read in the data
@@ -261,7 +293,7 @@ dim(my_data)
 str(my_data)
 ```
 
-It looks like the data has loaded ok - it seems to have 153 rows and 2 columns. However it also looks like there is no variable names in the column header - the columns are currently called "V1" and "V2", which are R's placeholder variable names. From asking Dr. Pugh, we know the columns are year and co2 output. We can easily give names to the columns in a dataframe in R using the "names()" function:
+It looks like the data has loaded OK - it seems to have 153 rows and 2 columns. However it also looks like there is no variable names in the column header - the columns are currently called "V1" and "V2", which are R's placeholder variable names. From asking Dr. Pugh, we know the columns are year and co2 output. We can easily give names to the columns in a dataframe in R using the "names()" function:
 
 ```{r}
 # Set the column names in the dataframe stored in the variable called my_data
@@ -275,20 +307,22 @@ Now if we recheck the column names with str(), we should see they have changed.
 str(my_data)
 ```
 
-Easy! Lets make a quick scatter plot of this data. Note the use of a new function, the "expression()" function, which lets us use mathematical notation and sub and superscripts in axes labels. If you want to use mathematical symbols and expressions in R axes lables, google more about R's "expression()" function. 
+Easy! Lets make a quick scatter plot of this data. Note the use of a new function, the "expression()" function, which lets us use mathematical notation and sub and superscripts in axes labels. If you want to use mathematical symbols and expressions in R axes labels, Google more about R's "expression()" function. 
 
 ```{r}
+# Plot the ASCII time series data. Note the new expression() function, which allows mathematical expressions, superscripts and subscripts to be used in plot labels. 
 plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]))
 ```
 
 The graph looks quite good, but with time series data like this it would be more normal to plot it as a line graph. Note "time series" data is any data measured at regularly spaced intervals. This is done by changing the "type=" function argument. We can make the line thicker with the "lwd=" argument, and we might want to change the color. 
 
 ```{r}
+# Change from a scatter graph to a line graph with the type='l' function argument. lwd=2 changes the line width. 
 plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]), type='l', lwd=2, col="lightgreen")
 ```
 
 ## End of notebook 1
-Ok, so if you havn't seen R before, that was a HUGE amount of information. You are probably feeling totally overwhelmed, and like this course isn't for you. If you feel this way don't panic, it is normal to feel like this. Go and take a break and have a cuppa immediatly, and then possibly go through this whole notebook again. There is so much information in this that it will be difficult to take it all in in just one sitting. 
+OK, so if you haven't seen R before, that was a HUGE amount of information. You are probably feeling totally overwhelmed, and like this course isn't for you. If you feel this way don't panic, it is normal to feel like this. Go and take a break and have a cuppa immediately, and then possibly go through this whole notebook again. There is so much information in this that it will be difficult to take it all in in just one sitting. 
 
 The really good news, is that you now know almost everything you need to know about variables and using functions. Everything else we do is just a variation on what you have done in this notebook. Sure there are a couple of new functions and some different datasets, but everything else is just repeating what we have already done. If you understand most of this R notebook, you have already understood about 80% of what you need for this course. So well done! Once you have gone through this notebook at least a second time, then you are ready for notebook 2. See you there. :) 
 
