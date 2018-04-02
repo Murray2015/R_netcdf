@@ -2,6 +2,7 @@
 my_var = 144 # creates a variable called "my_var" and stores the number 144 in it.
 
 ## ------------------------------------------------------------------------
+# Print the contents of my_var to the screen
 my_var
 
 ## ------------------------------------------------------------------------
@@ -29,6 +30,7 @@ radius = 5
 circle_area = pi_3dp * radius^2
 
 ## ------------------------------------------------------------------------
+# Print the contents of circle_area to the screen
 circle_area
 
 ## ------------------------------------------------------------------------
@@ -38,14 +40,19 @@ my_fav_sentence = "climate data is cool"
 my_fav_sentence 
 
 ## ------------------------------------------------------------------------
+# Make a vector containing the start of the Fibonacci sequence
 fib = c(0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+# Print the contents of the fib variable to the screen
 fib
 
 ## ------------------------------------------------------------------------
+# Multiply every number inside the fib variable by 2.
 fib * 2
 
 ## ------------------------------------------------------------------------
+# Create a matrix of test data
 my_mat = matrix(1:12, nrow=3)
+# Print the matrix to the screen
 my_mat
 
 ## ------------------------------------------------------------------------
@@ -58,6 +65,7 @@ faithful
 dim(faithful)
 
 ## ------------------------------------------------------------------------
+# Print the structure of the faithful variable to the screen
 str(faithful)
 
 ## ------------------------------------------------------------------------
@@ -75,9 +83,11 @@ faithful[1:5, 1]
 faithful[10:41,2]
 
 ## ------------------------------------------------------------------------
+# Select all of the second column in the dataset (this is equivalent to faithful$waiting)
 faithful[ ,2]
 
 ## ------------------------------------------------------------------------
+# Make a scatter plot of old faithful eruptions
 plot(x=faithful$eruptions, y=faithful$waiting)
 
 ## ------------------------------------------------------------------------
@@ -89,16 +99,20 @@ plot(x=faithful$eruptions, y=faithful$waiting, pch=17)
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red")
 
 ## ------------------------------------------------------------------------
+# Use extra function arguments in the plot() function to change the axis labels.
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)")
 
 ## ------------------------------------------------------------------------
+# Use extra function arguemnts for the plot() function to add a title, remove excess white space, and change the limits of the plot. 
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)", main="Old faithful eruption times", xaxs="i", yaxs="i", xlim=c(0,6), ylim=c(0, 120))
 
 ## ------------------------------------------------------------------------
+# Add a subtle grid to the plot. Note that this whole code chunk must be run at the same time with the Ctrl+Shift+Enter command, rather than running one line at a time with Ctrl+Enter, which will cause an error due to the plot already being printed to the screen.
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)", main="Old faithful eruption times", xaxs="i", yaxs="i", xlim=c(0,6), ylim=c(0, 120))
 grid()
 
 ## ------------------------------------------------------------------------
+# Open R's internal documentation on the plot function() - this is useful for when you don't have an internet connection. If you do have an internet connection, the internet is often more useful for R questions than the internal documentation, which is sometimes not very clearly written.
 ?plot
 
 ## ------------------------------------------------------------------------
@@ -123,11 +137,13 @@ names(my_data) = c("year", "co2")
 str(my_data)
 
 ## ------------------------------------------------------------------------
+# Plot the ASCII time series data. Note the new expression() function, which allows mathematical expressions, superscripts and subscripts to be used in plot labels. 
 plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]))
 
 ## ------------------------------------------------------------------------
+# Change from a scatter graph to a line graph with the type='l' function argument. lwd=2 changes the line width. 
 plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]), type='l', lwd=2, col="lightgreen")
 
-## ------------------------------------------------------------------------
+## ----echo=FALSE, results='hide'------------------------------------------
 knitr::purl("Rmd_script_1_using_R.Rmd")
 

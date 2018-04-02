@@ -271,6 +271,6 @@ hist(time_series_australia, col='black', main='', xlab='Yield')
 
 And we are finished! You can now do a huge amount of things in R. You can manipulate data to change it's units via simple mathematical operations. You can install and load new packages for free. You can read and work with data files hundreds of times too big to open in excel. You can make and save publication quality maps and graphs. You can select, mask and filter data you want. You can find summary statistics for areas and regions of the world, and you can make several types of plot to summarize it. Well done! I hope you have found this series of R notebooks helpful. Good luck in using these skills for your own work, and enjoy! 
 
-```{r}
+```{r echo=FALSE, results='hide'}
 knitr::purl("Rmd_script_3_masking.Rmd")
 ```

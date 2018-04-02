@@ -3,7 +3,9 @@ title: "R Notebook 1 - Using R and plotting ASCII data"
 output: html_notebook
 ---
 
-Hello! This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook introducing R as a scientific computing language through climate data. When you execute code within the notebook by clicking in the grey boxes and pressing *Ctrl+Enter*, the results appear beneath the code. This document needs to be opened and run in R studio. If you open it in any other program (e.g. a web browser) you will be able to see the code, but not be able to change it, play with it or run it. You will just see the results from when I ran and compiled this document. 
+Hello! This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook introducing R as a scientific computing language through climate data. You will need to have installed R and R studio before using this guide. For a walkthrough for installing R and R Studio, watch this video: [https://youtu.be/cX532N_XLIs](https://youtu.be/cX532N_XLIs). 
+
+This document should be opened in R studio. Code in this notebook can be executed within the notebook by clicking in the grey boxes and pressing *Ctrl+Enter*, which makes the results appear beneath the code. Opening this docuemnt in any other program (e.g. a web browser) than R studio will lead to you being able to see the code, but not being able to change it, play with it or run it. 
 
 # Introducing R 
 R is quite easy to start working with. R is a fully fledged programming language and therefore can be hugely powerful for analyzing data. It allows you to analyse much bigger datasets than are possible in other programs (such as Microsoft Excel), and there are many jobs for people skilled in R and analyzing data. This series of three R notebooks will introduce some parts of R, will teach finding summary statistics (such as mean, median, standard deviation etc.), and will teach how to make a number of different types of graphs and maps. This specific R notebook will show you some of the basics of R to allow you to get started using R as a programming language for science, so you can discover cool stuff and make publication quality figures quickly and easily. 
@@ -41,11 +43,13 @@ The structure of how to store something in a variable is as follows:
 
 The equals sign is not the equals sign from maths. In R, the equals sign is the "Assignment operator" that assigns the data on the right hand side, to the variable on the left hand side. 
 
-Once you have made a variable, you can access whatever is stored in that variable by just using it's name. For example, to find out what we stored in the variable "my_var", just type it's name (inside a code chunk) and press *Ctrl+Enter*
+Once you have made a variable, you can access whatever is stored in that variable by just using it's name. For example, to find out what we stored in the variable "my_var", just type it's name (inside a code chunk) and press *Ctrl+Enter* 
 
 ```{r}
+# Print the contents of my_var to the screen
 my_var
 ```
+
 
 If you run this code chunk by clicking in the gray box above and pressing *Ctrl+Enter*, you should see an output underneath that looks something like "[1] 144". The "[1]" is unimportant - it just shows that this is output by R rather than what we typed in. The "144" is the important bit - the computer went to someplace in memory and retrieved that value for us. We can now do useful things with that data. (Note if you didn't see this output, you probably haven't run the first code chunk where we made the variable in the first place).
 
@@ -327,7 +331,7 @@ OK, so if you haven't seen R before, that was a HUGE amount of information. You 
 The really good news, is that you now know almost everything you need to know about variables and using functions. Everything else we do is just a variation on what you have done in this notebook. Sure there are a couple of new functions and some different datasets, but everything else is just repeating what we have already done. If you understand most of this R notebook, you have already understood about 80% of what you need for this course. So well done! Once you have gone through this notebook at least a second time, then you are ready for notebook 2. See you there. :) 
 
 
-```{r}
+```{r echo=FALSE, results='hide'}
 knitr::purl("Rmd_script_1_using_R.Rmd")
 ```
 

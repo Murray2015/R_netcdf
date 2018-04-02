@@ -104,7 +104,7 @@ image.plot(lon, lat, flipped_first_gpp_slice)
 map(database = 'world', lwd=1.5, add = T, col='black')
 
 ## ------------------------------------------------------------------------
-# Install the RColorBrewer package, to give us access to lots of extra colour pallets. Uncomment and run the line below the first time on a computer. 
+# Install the RColorBrewer package, to give us access to lots of extra colour paletts. Uncomment and run the line below the first time on a computer. 
 # install.packages("RColorBrewer")
 # Load the RColorBrewer into R with the library() function. 
 library("RColorBrewer")
@@ -113,7 +113,7 @@ image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(10, "RdBu")))
 map(database = 'world', add = T, lwd=1.5)
 
 ## ------------------------------------------------------------------------
-# The same image.plot() and map() code as before, but with a yellow-green-blue color pallete.
+# The same image.plot() and map() code as before, but with a yellow-green-blue color palette.
 image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")))
 map(database = 'world', add = T, lwd=1.5)
 
@@ -125,11 +125,11 @@ image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")),
 map(database = 'world', add = T, lwd=1.5)
 
 ## ------------------------------------------------------------------------
-# Install the colourblind and black and white printer firneds viridis colour palletes
+# Install the colourblind and black and white printer firneds viridis colour palettes
 # install.packages("viridis")
 # load the viridis package 
 library("viridis")
-# Same par(), image.plot() and map() functions as before, but using the viridis colour pallete.
+# Same par(), image.plot() and map() functions as before, but using the viridis colour palette.
 par(mar=c(3,3,3,3))
 image.plot(lon, lat, flipped_first_gpp_slice, col=viridis(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
@@ -137,13 +137,13 @@ map(database = 'world', add = T, lwd=1.5)
 ## ------------------------------------------------------------------------
 # Open a png graphcs device to export a plot, and make a plot which is 10 inches by 5 inches, and save at a resolution of 300 dpi.
 png("gpp_map.png", width=10, height=5, units = 'in', res = 300)
-# Same par(), image.plot() and map() functions as before, but using the plasma color pallete from the viridis package.
+# Same par(), image.plot() and map() functions as before, but using the plasma color palette from the viridis package.
 par(mar=c(3,3,3,3))
 image.plot(lon, lat, flipped_first_gpp_slice, col=plasma(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
 # close the png graphics device to complete exporting the plot. 
 dev.off()
 
-## ------------------------------------------------------------------------
+## ----echo=FALSE, results='hide'------------------------------------------
 knitr::purl("Rmd_script_2_netcdf.Rmd")
 

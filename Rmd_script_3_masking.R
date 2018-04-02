@@ -172,6 +172,6 @@ plot(time_series_australia, type='l', xlab="Time step", ylab='Yield')
 # Finally, make a histogram of our time series data. Just because we can. 
 hist(time_series_australia, col='black', main='', xlab='Yield')
 
-## ------------------------------------------------------------------------
+## ----echo=FALSE, results='hide'------------------------------------------
 knitr::purl("Rmd_script_3_masking.Rmd")
 

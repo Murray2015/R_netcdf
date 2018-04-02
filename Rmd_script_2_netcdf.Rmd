@@ -320,6 +320,6 @@ Well done for reaching the end of Notebook 2. I'm genuinely proud of you - that 
 
 
 
-```{r}
+```{r echo=FALSE, results='hide'}
 knitr::purl("Rmd_script_2_netcdf.Rmd")
 ```
