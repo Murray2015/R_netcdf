@@ -1,6 +1,5 @@
 ---
 title: "R Notebook 2 - working with NetCDF data"
-output: html_notebook
 ---
 
 Hello! This is the second R notebook on working with climate data. In the last notebook, we introduced the programming constructs of a "variable" and a "function". We then worked with 1 and 2 dimensional ASCII data to make some scatter plots. In this notebook, we will introduce new functions for opening and working with a type of file called a NetCDF file, which contains 3 dimensional and higher dimensional data. But don't panic, we will still just be storing this new data in variables, and working with the data with functions, so you already know all the theory. **Just to remind you, if you are feeling like there is loads of code to remember and it's a bit overwhelming, you don't have to remember the code at all**. The idea is that you can copy and paste the code and alter it to do what you want to do.  
@@ -9,11 +8,11 @@ Anyway, let's get started!
 
 
 # 3 dimensional climate data - NetCDF files.
-As mentioned in the last R notebook, the first thing we always need to do is set our working directory to the folder where we have saved the data. Otherwise R doesn't know where to look for the data. We run the code in the gray code chunk below by clicking in the gray box and pressing *Ctrl+Enter* (assuming you have opened this document in R studio). 
+As mentioned in the last R notebook, the first thing we always need to do is set our working directory to the folder where we have saved the data. Otherwise R doesn't know where to look for the data. We run the code in the grey code chunk below by clicking in the grey box and pressing *Ctrl+Enter* or *Cmd+Enter* for mac users (assuming you have opened this document in R studio), but **first you need to change the file path inside the setwd() function to your file path**. To save you some typing, this can also be done from the menu at the top of R studio. Go to Session >  Set working directory > Choose directory, and navigate to the folder where the data files are saved.
 
 ```{r}
 # Set the working directory to the folder where the data is saved.
-setwd("~/Documents/scratch/R_netcdf")
+setwd("~/Documents/scratch/R_netcdf") # This is the file path to where I have saved my data files on my computer. Your file path will be different. Either use Windows Explorer (Finder on a mac) to find the file path, or use the menu at the top of R studio to set the working directory instead. If you want to use the menu instead of this line of code, at the top of R studio click Session >  Set working directory > Choose directory, and navigate to the folder where the data files are saved.
 ```
 
 You probably haven't heard of NetCDF as a file type. NetCDF files are files that normally end with the file extension .nc or sometimes .grd. NetCDF files are used for various types of climate data and geophysical data. The structure of data inside a NetCDF file is like a stack of spreadsheets on top of each other, where the x and y variables are normally latitude and longitude. See the picture below. 
@@ -88,7 +87,7 @@ After this, we have a long paragraph which starts with
 
 In a NetCDF file, the global attributes are normally useful things like who made the file, when it was made, a description, and other useful information which is often called meta-data. 
 
-We now understand a bit about our NetCDF file. The next step is to extract variables in the NetCDF file into variables in R. To do this we use the "ncvar_get()" function. The function arguments nc= refers to the NetCdf file, while the varid= function argument refers to the variable name *in the NetCDF* file. This is why we needed to use the print() function in the last step; to find out the variable names. 
+We now understand a bit about our NetCDF file. The next step is to extract variables in the NetCDF file into variables in R. To do this we use the "ncvar_get()" function. The function arguments "nc=" refers to the NetCdf file, while the "varid=" function argument refers to the variable name *in the NetCDF* file. This is why we needed to use the print() function in the last step; to find out the variable names. 
 
 ```{r}
 # Extract the 'lat' variable in the netcdf file, and store it in a variable called 'lat' in R.
@@ -135,9 +134,9 @@ Hmm. The end of the variable also seems to be filled with NAs. We might now be s
 sum(gpp, na.rm=TRUE)
 ```
 
-OK, the value is above 1. So we do have data in the gpp variable. It's OK. 
+OK, the value is above 0. So we do have data in the gpp variable. It's OK. 
 
-The last thing we want to do is extract some of the attributes in the meta-data. Lets get the full name of the gpp variable and it's units. We can then use these for things like plot titles later. Let's also get the _FillValue. This is the value in the NetCDF file that corresponds to NA. The fact that we saw lots of NAs with the head and tail function might show that R has managed to handle it for us already, but it's better to be safe than sorry! 
+The last thing we want to do is extract some of the attributes in the meta-data. Lets get the full name of the gpp variable and it's units. We can then use these for things like plot titles later. Let's also get the _FillValue. This is the value in the NetCDF file that corresponds to NA (which is when the number doesn't exist in the data, for example when the oceans aren't modelled, as you will notice in this dataset later). The fact that we saw lots of NAs with the head and tail function might show that R has managed to fill the _FillValue to NA for us already, but it's better to be safe than sorry! 
 
 ```{r}
 # Get the long name attribute for the gpp variable, for plotting later
@@ -172,7 +171,7 @@ gpp[gpp==gpp_fillvalue$value] = NA
 Now that we have extracted all the data in our NetCDF file, we are ready to start making some maps of the data! 
 
 ## Making our first map 
-The data inside a NetCDF file (and therefore the data in our variables in R which we have extracted from the NetCDF files) is a rectangular grid of numbers. In fact, if we have a time variable, then it is a 3D cube of data - imagine a rubix cube of data, but with the dimensions of our data instead of the normal 3x3x3 rubix cube. 
+The data inside a NetCDF file (and therefore the data in our variables in R which we have extracted from the NetCDF files) is a rectangular grid of numbers called a matrix. In fact, because we have a time variable, we actually have a 3D cube of data - imagine a rubix cube of data, but with the dimensions of our data instead of the normal 3x3x3 rubix cube. 
 
 Remember we extracted four data variables from the NetCDF file with the ncvar_get() function. Those variables were lat, lon, time, and gpp. 
 
@@ -183,7 +182,7 @@ Let's remind ourselves of the dimensions of our data:
 dim(gpp)
 ```
 
-So 360 in the x dimension, 180 in the y dimension, and 360 in the z dimension. If we check back to the length of the variables from the print() function we can see this corresponds to lat, long and time. 
+This output means we have 360 in the x dimension, 180 in the y dimension, and 360 in the z dimension. If we check back to the length of the variables from the print() function we can see this corresponds to lat, long and time. 
 
 This is just a matrix of data, so we can extract any subset of it using the square bracket notation. Let's extract the first time slice of the data, and save it in a variable called first_gpp_slice. 
 
@@ -192,9 +191,9 @@ This is just a matrix of data, so we can extract any subset of it using the squa
 first_gpp_slice = gpp[,,1]
 ```
 
-Remember using the square bracket notation to slice data in the last R notebook? In that notebook, use said how for 2D data the format is some_variable[x_dimension,y_dimension]. This means to select the first row of the first column would be some_variable[1,1]. In that notebook we also mentioned that if we leave the places before or after the comma inside the square brackets blank (like this: some_variable[,1] or some_variable[1,]) that we select all of that column or all of that row. 
+Remember using the square bracket notation to slice data in the last R notebook? In that notebook, use said how for 2D data the format is some_variable[x_dimension,y_dimension]. This means to select the first row of the first column would be some_variable[1,1]. In the previous notebook we also mentioned that if we leave the places before or after the comma inside the square brackets blank (like this: some_variable[,1] or some_variable[1,]) that we select all of that column or all of that row. 
 
-Hopefully that is not too confusing so far. So we know our gpp variable contains latitude x longitude x time. Therefore running gpp[,,1] means give me all latitude and all longitude for the first time slice only. Obvious, you would change the 1 if you wanted a different time slice, e.g. gpp[,,53] would give the 53rd time slice. 
+Hopefully that is not too confusing so far. So we know our gpp variable is a 3D cube of data rather than a 2D grid. We can use the square bracket notation to extract the data like this: some_variable[x_dimension,y_dimension,z_dimension]. For our gpp variable, this corresponds to gpp[latitude,longitude,time]. Therefore running gpp[,,1] means give me all latitude and all longitude for the first time slice only. Obvious, you would change the final value if you wanted a different time slice, e.g. gpp[,,53] would give the 53rd time slice. 
 
 Knowing all of this, if we run our trusty dim() function on our new variable first_gpp_slice, we should get results of 360 x 180 x 1, as we took all longitude and all latitude, at the first time only (not at all time slices). So essentially we took the first layer off our rubix cube. 
 
@@ -227,7 +226,7 @@ OK, now we're cooking! This is a map of the first time slice of our gpp variable
 So it turns out we have an immediate problem. Adding a legend to the image() function is really hard. Doh! The image function is still really useful as a quick first look at a matrix of numbers though. However it just so happens that in the fields package, some kind R programmer has modified the image() function into a new function called image.plot(), which has an automatic colour bar. It also allows us to specify the labels of the x and y axis, so we can actually display latitude and longitude rather than the strange 0 to 1 scale. Uncomment the install.packages line underneath to install the fields package, then run the library command to load the package and the make the map: 
 
 ```{r}
-# install the fields package, which as the image.plot() function. Uncomment the line below to run it for the first time.
+# install the fields package, which as the image.plot() function. Uncomment the line below (to "uncomment" just means to delete the '#' symbol at the start of the line) to run it for the first time.
 # install.packages("fields")
 # Load the fields package with the library() function
 library("fields")
@@ -321,5 +320,6 @@ Well done for reaching the end of Notebook 2. I'm genuinely proud of you - that 
 
 
 ```{r echo=FALSE, results='hide'}
-knitr::purl("Rmd_script_2_netcdf.Rmd")
+# This line of code extracts all R code from this document
+knitr::purl("Rmd_script_2_netcdf.Rmd", output="Script_2_R_code_only.R")
 ```

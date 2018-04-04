@@ -1,7 +1,9 @@
 ## ------------------------------------------------------------------------
 ## Use the workflow from R notebook 2 to read in the NetCDF file 
 # Set the working directory to where the data files are saved
-setwd("~/Documents/scratch/R_netcdf")
+setwd("~/Documents/scratch/R_netcdf") # This is the file path to where I have saved my data files on my computer. Your file path will be different. Either use Windows Explorer (Finder on a mac) to find the file path, or use the menu at the top of R studio to set the working directory instead. If you want to use the menu instead of this line of code, at the top of R studio click Session >  Set working directory > Choose directory, and navigate to the folder where the data files are saved.
+
+## ------------------------------------------------------------------------
 # Load the ncdf4 library into R. (note, we installed this with install.packages() in Notebook 2)
 library("ncdf4")
 # Open a file connection to the NetCDF file
@@ -173,5 +175,6 @@ plot(time_series_australia, type='l', xlab="Time step", ylab='Yield')
 hist(time_series_australia, col='black', main='', xlab='Yield')
 
 ## ----echo=FALSE, results='hide'------------------------------------------
-knitr::purl("Rmd_script_3_masking.Rmd")
+# This line of code extracts all R code from this document
+knitr::purl("Rmd_script_3_masking.Rmd", output="Script_3_R_code_only.R")
 

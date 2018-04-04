@@ -1,6 +1,5 @@
 ---
 title: "R Notebook 3 - masking NetCDF data"
-output: html_notebook
 ---
 
 Hello, and welcome to the final R climate notebook. In the first R notebook we explained what variables and function are (where we store climate data and how we operate on climate data, respectively), we described using simple mathematical operations on variables (which therefore allows us to do useful things to our data, e.g. such as change units - if you have a matrix of temperatures in degrees Celsius in a variable called temp, then temp+273.15 would change every temperature in temp to Kelvin), and we described how to plot simple time series data. In the second R notebook we explained the NetCDF file format and how we work with it in R, including the standard workflow of opening the file, viewing the header (metadata), extracting variables, extracting attributes, and closing the file. We then explained slicing out a specific time slice to make a map. We flipped the time slice, showed ways to plot with different colour palettes, and how to save plots. 
@@ -9,11 +8,16 @@ In this final notebook, we will read some data from a NetCDF file and make a dif
 
 
 ## Read in data from NetCDF
-We start by reading in our NetCDF data. We use the setwd() function to set the working directory to the location of our saved NetCDF file. We then use the library() function to load the ncdf4 package so we can open the NetCDF file. We use the nc_open() function to open a connection to the NetCDF file and save it to a variable. We use print() to view the header of the NetCDF file, and the ncvar_get() function to extract the lat, lon, time and yield_mai variables - which we found the names for from the print() function. We then get the attributes we want with the ncatt_get() function, and close the file connection with the nc_close() function. This was all explained in detail in the previous R notebook. Finally we change the _FillValues in the NetCDF file to NAs so R does not plot them, and extract the first yield slice and flip it upside down, ready for plotting. 
+We start by reading in our NetCDF data. We use the setwd() function to set the working directory to the location of our saved NetCDF file. We then use the library() function to load the ncdf4 package so we can open the NetCDF file. We use the nc_open() function to open a connection to the NetCDF file and save it to a variable. We use print() to view the header of the NetCDF file, and the ncvar_get() function to extract the lat, lon, time and yield_mai variables - which we found the names for from the print() function. We then get the attributes we want with the ncatt_get() function, and close the file connection with the nc_close() function. This was all explained in detail in the previous R notebook. Finally we change the _FillValues in the NetCDF file to NAs so R does not plot them, and extract the first yield slice and flip it upside down, ready for plotting. Remember to run these code chunks you must have this document open in R studio, then click in the grey box below and press *Ctrl+Enter* on a Windows computer or *Cmd+Enter* on a mac. 
+
 ```{r}
 ## Use the workflow from R notebook 2 to read in the NetCDF file 
 # Set the working directory to where the data files are saved
-setwd("~/Documents/scratch/R_netcdf")
+setwd("~/Documents/scratch/R_netcdf") # This is the file path to where I have saved my data files on my computer. Your file path will be different. Either use Windows Explorer (Finder on a mac) to find the file path, or use the menu at the top of R studio to set the working directory instead. If you want to use the menu instead of this line of code, at the top of R studio click Session >  Set working directory > Choose directory, and navigate to the folder where the data files are saved.
+```
+
+Then read the data into R
+```{r}
 # Load the ncdf4 library into R. (note, we installed this with install.packages() in Notebook 2)
 library("ncdf4")
 # Open a file connection to the NetCDF file
@@ -272,5 +276,6 @@ hist(time_series_australia, col='black', main='', xlab='Yield')
 And we are finished! You can now do a huge amount of things in R. You can manipulate data to change it's units via simple mathematical operations. You can install and load new packages for free. You can read and work with data files hundreds of times too big to open in excel. You can make and save publication quality maps and graphs. You can select, mask and filter data you want. You can find summary statistics for areas and regions of the world, and you can make several types of plot to summarize it. Well done! I hope you have found this series of R notebooks helpful. Good luck in using these skills for your own work, and enjoy! 
 
 ```{r echo=FALSE, results='hide'}
-knitr::purl("Rmd_script_3_masking.Rmd")
+# This line of code extracts all R code from this document
+knitr::purl("Rmd_script_3_masking.Rmd", output="Script_3_R_code_only.R")
 ```

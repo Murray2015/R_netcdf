@@ -107,7 +107,7 @@ plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)", main="Old faithful eruption times", xaxs="i", yaxs="i", xlim=c(0,6), ylim=c(0, 120))
 
 ## ------------------------------------------------------------------------
-# Add a subtle grid to the plot. Note that this whole code chunk must be run at the same time with the Ctrl+Shift+Enter command, rather than running one line at a time with Ctrl+Enter, which will cause an error due to the plot already being printed to the screen.
+# Add a subtle grid to the plot. Note that this whole code chunk must be run at the same time with the Ctrl+Shift+Enter command, rather than running one line at a time with Ctrl+Enter (or Cmd+Enter on a mac), which will cause an error due to the plot already being printed to the screen.
 plot(x=faithful$eruptions, y=faithful$waiting, pch=17, col="red", xlab="Eruption time (minutes)", ylab="Time between eruptions (minutes)", main="Old faithful eruption times", xaxs="i", yaxs="i", xlim=c(0,6), ylim=c(0, 120))
 grid()
 
@@ -117,7 +117,7 @@ grid()
 
 ## ------------------------------------------------------------------------
 # Set the working directory, so R can find the data files.
-setwd("~/Documents/scratch/R_netcdf")
+setwd("~/Documents/scratch/R_netcdf") # This is the file path to where I have saved my data files on my computer. YOUR FILE PATH WILL BE DIFFERENT. Either use Windows Explorer (Finder on a mac) to find the file path, or use the menu at the top of R studio to set the working directory instead. If you want to use the menu instead of this line of code, at the top of R studio click Session >  Set working directory > Choose directory, and navigate to the folder where the data files are saved.
 
 ## ------------------------------------------------------------------------
 # Read in the data
@@ -145,5 +145,6 @@ plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2])
 plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]), type='l', lwd=2, col="lightgreen")
 
 ## ----echo=FALSE, results='hide'------------------------------------------
-knitr::purl("Rmd_script_1_using_R.Rmd")
+# This line of code extracts all R code from this document
+knitr::purl("Rmd_script_1_using_R.Rmd", output="Script_1_R_code_only.R")
 

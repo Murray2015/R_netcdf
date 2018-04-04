@@ -1,6 +1,6 @@
 ## ------------------------------------------------------------------------
 # Set the working directory to the folder where the data is saved.
-setwd("~/Documents/scratch/R_netcdf")
+setwd("~/Documents/scratch/R_netcdf") # This is the file path to where I have saved my data files on my computer. Your file path will be different. Either use Windows Explorer (Finder on a mac) to find the file path, or use the menu at the top of R studio to set the working directory instead. If you want to use the menu instead of this line of code, at the top of R studio click Session >  Set working directory > Choose directory, and navigate to the folder where the data files are saved.
 
 ## ------------------------------------------------------------------------
 # Install the "ncdf4" package from the internet. This normally only needs to be done a single time on a computer, and then it is installed forever. 
@@ -90,7 +90,7 @@ flipped_first_gpp_slice = gpp[,180:1,1]
 image(flipped_first_gpp_slice)
 
 ## ------------------------------------------------------------------------
-# install the fields package, which as the image.plot() function. Uncomment the line below to run it for the first time.
+# install the fields package, which as the image.plot() function. Uncomment the line below (to "uncomment" just means to delete the '#' symbol at the start of the line) to run it for the first time.
 # install.packages("fields")
 # Load the fields package with the library() function
 library("fields")
@@ -145,5 +145,6 @@ map(database = 'world', add = T, lwd=1.5)
 dev.off()
 
 ## ----echo=FALSE, results='hide'------------------------------------------
-knitr::purl("Rmd_script_2_netcdf.Rmd")
+# This line of code extracts all R code from this document
+knitr::purl("Rmd_script_2_netcdf.Rmd", output="Script_2_R_code_only.R")
 
