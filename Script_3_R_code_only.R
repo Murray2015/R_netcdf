@@ -60,7 +60,7 @@ image.plot(lon, lat, yield_difference, col=rev(brewer.pal(9,'RdBu')))
 ## ------------------------------------------------------------------------
 # Cheat at centering the colourbar at 0 by making the lowest right hand corner the posative maximum absolute value, and making the square next to it the negative maximum absolute value. Do not do this before taking summary statistics of the data, as we are actually changing the data to make it plot how we want it to. Also do not use with low resolution data, as you may be able to see the values you have changed. 
 yield_difference_altered = yield_difference
-yield_difference_altered[1,1] = max(abs(yield_difference_altered), na.rm=T)
+yield_difference_altered[1,1] = max(abs(yield_difference_altered), na.rm=T) # na.rm=T is short for na.rm=TRUE. This means to remove the NA values before finding the maximum of the absolute value. If na.rm=T isn't here, the abs function will return NA and the code won't work as expected. Remember many functions in R will return NA if there are any NAs in the data, kinda as a warning. For example "max(c(1,5,NA, 500))" will return NA, but "max(c(1,5,NA,500), na.rm=T)" will return 500. 
 yield_difference_altered[2,1] = -max(abs(yield_difference_altered), na.rm=T)
 image.plot(lon, lat, yield_difference_altered, col=rev(brewer.pal(9,'RdBu')))
 
@@ -135,12 +135,12 @@ pretend_data2 * pretend_mask2
 ncfile = nc_open("ESA_forest_9regions_v2_1deg.nc")
 # Print the header information for the NetCDF file
 print(ncfile)
+
+## ------------------------------------------------------------------------
 # Use the ncvar_get() function to get the values of the mask
 mask = ncvar_get(ncfile, 'region_mask')
 # Close the connection to the NetCDF file.
 nc_close(ncfile)
-
-## ------------------------------------------------------------------------
 # Make a quick plot of the values in the mask file 
 image.plot(mask, col=rainbow(9))
 
@@ -153,7 +153,7 @@ first_yield_slice_tropical_broad = first_yield_slice * tropical_broad_dec_mask
 image(first_yield_slice_tropical_broad)
 
 ## ------------------------------------------------------------------------
-# Get a summary statistic for the yield of the tropical broadleaf forests
+# Summary statistics are things like mean, median, maximum, minimum, interquartile ranges, etc. Summary statistics are often the best way to answer scientific questions, such as "what is the maximum modeled temperature in a tropic broadleaf forest". Let's see an example of how easy it is to get a summary statistic for the yield of the tropical broadleaf forests
 mean(first_yield_slice_tropical_broad, na.rm = T)
 
 ## ------------------------------------------------------------------------
@@ -163,6 +163,8 @@ tropical_broad_ever_mask = ifelse(mask == 1,1,NA)
 first_yield_slice_tropical_broad_ever = first_yield_slice * tropical_broad_ever_mask
 # Make a plot of our subsetted data. 
 image(first_yield_slice_tropical_broad_ever)
+# Find the maximum yield in this subset
+max(first_yield_slice_tropical_broad_ever, na.rm=T)
 
 ## ------------------------------------------------------------------------
 # Here we extract a time series from the yield data by specifying a single lattitude and longitude, but then leave the third space inside the square brackets blank to select all time slices at that lat/long location. 

@@ -93,12 +93,12 @@ library("RColorBrewer")
 image.plot(lon, lat, yield_difference, col=rev(brewer.pal(9,'RdBu')))
 ```
 
-Sometimes there is a lot of increase but almost no decrease in something over time (or the opposite, lots of decrease and little increase). Plotting this kind of data can end up with the white of the colour palette not being centered over 0 (remember if we are looking at a difference map made by subtracting one time slice from another a value of 0 means there is no change, so this is important for understanding the data!). A polar colour palette such as what we are using needs to be centered at zero, otherwise it gives a very skewed message. A useful cheat to handle this in R is to make a single square in our yield_difference matrix the positive largest absolute value in the whole matrix, and another square the negative largest absolute value in the whole matrix. This means the colourbar will be perfectly centered at 0, because the colourbar fit's itself between the smallest and largest values. However note, *you shouldn't do this before extracting any summary statistics* about the data (because we are actually changing two values of the data), and also *you shouldn't do this if the data is low resolution*, as you may be able to actually see the values you have changed. 
+Sometimes there is a lot of increase but almost no decrease in something over time (or the opposite, lots of decrease and little increase). Plotting this kind of data can end up with the white of the colour palette not being centered over 0 (remember if we are looking at a difference map made by subtracting one time slice from another a value of 0 means there is no change, so this is important for understanding the data!). A polar colour palette such as what we are using needs to be centered at zero, otherwise it gives a very skewed message. A useful cheat to handle this in R is to make a single square in our "yield_difference" matrix the positive largest absolute value in the whole matrix, and another square the negative largest absolute value in the whole matrix. This means the colourbar will be perfectly centered at 0, because the colourbar fit's itself between the smallest and largest values. However note, *you shouldn't do this before extracting any summary statistics* about the data (because we are actually changing two values of the data), and also *you shouldn't do this if the data is low resolution*, as you may be able to actually see the values you have changed. 
 ```{r}
 # Cheat at centering the colourbar at 0 by making the lowest right hand corner the posative maximum absolute value, and making the square next to it the negative maximum absolute value. Do not do this before taking summary statistics of the data, as we are actually changing the data to make it plot how we want it to. Also do not use with low resolution data, as you may be able to see the values you have changed. 
 yield_difference_altered = yield_difference
-yield_difference_altered[1,1] = max(abs(yield_difference_altered), na.rm=T)
-yield_difference_altered[2,1] = -max(abs(yield_difference_altered), na.rm=T)
+yield_difference_altered[1,1] = max(abs(yield_difference_altered), na.rm=T) # na.rm=T is short for na.rm=TRUE. This means to remove the NA values before finding the maximum of the absolute value. If na.rm=T isn't here, the abs function will return NA and the code won't work as expected. Remember many functions in R will return NA if there are any NAs in the data, kinda as a warning. For example "max(c(1,5,NA, 500))" will return NA, but "max(c(1,5,NA,500), na.rm=T)" will return 500. 
+yield_difference_altered[2,1] = -max(abs(yield_difference_altered), na.rm=T) # na.rm=T is explained above.
 image.plot(lon, lat, yield_difference_altered, col=rev(brewer.pal(9,'RdBu')))
 ```
 
@@ -122,7 +122,7 @@ Similarly, lets find some other summary statistics for our slice:
 ```{r}
 # Find other summary statistics for the difference between slices 2 and 3. 
 median(yield_difference, na.rm=T)
-sd(yield_difference, na.rm=T)
+sd(yield_difference, na.rm=T) # the sd function returns the standard deviation. 
 max(yield_difference, na.rm=T)
 min(yield_difference, na.rm=T)
 ```
@@ -205,25 +205,27 @@ Hopefully the idea of masking to get rid of data is pretty clear! Now lets actua
 ncfile = nc_open("ESA_forest_9regions_v2_1deg.nc")
 # Print the header information for the NetCDF file
 print(ncfile)
-# Use the ncvar_get() function to get the values of the mask
-mask = ncvar_get(ncfile, 'region_mask')
-# Close the connection to the NetCDF file.
-nc_close(ncfile)
 ```
+
 
 OK, so immediately we have found useful information in the header. The header says:
 
 >double region_mask[lon,lat]   
             Comment: 1=Tropical broadleaved evergreen, 2=Tropical broadleaved deciduous, 3=Other Tropical (<23 degrees), 4=Temperate broadleaved evergreen, 5=Temperate broadleaved deciduous, 6=Needleleaved evergreen, 7=Needleleaved Deciduous, 8=Broadleaved/Needleaved mixed forest, 9=Other
 
-So it seems like this file is a mask for many different regions (in this case forest regions). Each region seems to be filled with a common value, going from 1 to 9. Let's try plotting the mask to see if we are correct: 
+So it seems like this file is a mask for many different regions (in this case forest regions). Each region seems to be filled with a common value, going from 1 to 9. Let's try extracting the values into a variable called "mask" and plotting the mask to see if we are correct: 
+
 
 ```{r}
+# Use the ncvar_get() function to get the values of the mask
+mask = ncvar_get(ncfile, 'region_mask')
+# Close the connection to the NetCDF file.
+nc_close(ncfile)
 # Make a quick plot of the values in the mask file 
 image.plot(mask, col=rainbow(9))
 ```
 
-Yep, looks like we are correct. However, as we talked about earlier, we preferably want this data mask to be in the form of 1s where we want to extract the data, and NAs everywhere else. Luckily we can do this in 1 line of code in R. Meet the "ifelse()" function. The ifelse() function takes a condition as it's first argument (for example mask==3, which means select only the places where the mask equals 3), the value to change to when that condition is true as it's second argument (which will always be 1 for us), and the value to change to when that condition is false as it's third argument (which will always be NA for us). Let's see this in action to make a mask for tropical broadleaved deciduous forests, select those by multiplying our data by out new mask, and then making a map of our selected data: 
+Yep, looks like we are correct. However, as we talked about earlier, we preferably want this data mask to be in the form of 1s where we want to extract the data, and NAs everywhere else. Luckily we can do this in 1 line of code in R. Meet the "ifelse()" function. The ifelse() function takes a condition as it's first argument (for example mask==3, which means select only the places where the mask equals 3), the value to change to when that condition is true as it's second argument (which will always be 1 for us), and the value to change to when that condition is false as it's third argument (which will always be NA for us). Let's see this in action to make a mask for tropical broadleaved deciduous forests, select those by multiplying our data by our new mask, and then making a map of our selected data: 
 
 ```{r}
 # After plotting the mask, we see that the format of the mask is numbers from 1 to 9, rather than the 1s and NAs that we want. Here we make a new mask for tropical broadleaved deciduous forest using the ifelse() function. This line of code makes a matrix where tropical broadleaved deciduous forest are set to 1, while the rest of the matrix is set to NA. This matrix is then saved to the variable tropical_broad_dec_mask.
@@ -234,14 +236,14 @@ first_yield_slice_tropical_broad = first_yield_slice * tropical_broad_dec_mask
 image(first_yield_slice_tropical_broad)
 ```
 
-And then after we have subsetted/masked/selected (these words all mean the same thing here) our data, we can find summary statistics for it. Don't forget the na.rm=T (or na.rm=TRUE) function argument! 
+And then after we have subsetted/masked/selected (these words all mean the same thing here) our data, we can find summary statistics for it. Incase it has become confusing why we are finding summary statistics of things, it's because often a summary statistic is the best way of answering a scientific question. Obviously a scientic question isn't normally "can you subset a broadleaf forest?" - which after doing the tutorial, the answer is yes, you can subset a broadleaf forest! The scientific question is more likely to be something along the lines of "What is the average yield of broadleaf forests". To answer this, you would want to take the mean (another way of saying the average) of the broadleaf forests. So let's do this, lets find  Don't forget the na.rm=T (or na.rm=TRUE) function argument! 
 
 ```{r}
-# Get a summary statistic for the yield of the tropical broadleaf forests
+# Summary statistics are things like mean, median, maximum, minimum, interquartile ranges, etc. Summary statistics are often the best way to answer scientific questions, such as "what is the maximum modeled temperature in a tropic broadleaf forest". Let's see an example of how easy it is to get a summary statistic for the yield of the tropical broadleaf forests
 mean(first_yield_slice_tropical_broad, na.rm = T)
 ```
 
-Let's do a second example, just to show it again. 
+Let's do a second of subsetting a region then finding a summary statistic on the subset, just to show it again. Remember I am just showing you how to get a summary statistic here, which summary statistic (e.g. mean, meadian, minimum, etc) you would choose would depend on the scientific question you were trying to answer. 
 
 ```{r}
 # Make a new mask for tropical broadleaved deciduous forest using the ifelse() function. This line of code makes a matrix where tropical broadleaved deciduous forest are set to 1, while the rest of the matrix is set to NA. This matrix is then saved to the variable tropical_broad_dec_mask.
@@ -250,6 +252,8 @@ tropical_broad_ever_mask = ifelse(mask == 1,1,NA)
 first_yield_slice_tropical_broad_ever = first_yield_slice * tropical_broad_ever_mask
 # Make a plot of our subsetted data. 
 image(first_yield_slice_tropical_broad_ever)
+# Find the maximum yield in this subset
+max(first_yield_slice_tropical_broad_ever, na.rm=T)
 ```
 
 ## Time series 
@@ -273,7 +277,11 @@ hist(time_series_australia, col='black', main='', xlab='Yield')
 ```
 
 
-And we are finished! You can now do a huge amount of things in R. You can manipulate data to change it's units via simple mathematical operations. You can install and load new packages for free. You can read and work with data files hundreds of times too big to open in excel. You can make and save publication quality maps and graphs. You can select, mask and filter data you want. You can find summary statistics for areas and regions of the world, and you can make several types of plot to summarize it. Well done! I hope you have found this series of R notebooks helpful. Good luck in using these skills for your own work, and enjoy! 
+And we are finished! As with the other two tutorials, I strongly recommend that you go back through this tutorial at least one more time. There is just too much information to take in in one read through. But seriously, congratulations! You can now do a huge amount of things in R. You can manipulate data to change it's units via simple mathematical operations. You can install and load new packages for free. You can read and work with data files hundreds of times too big to open in excel. You can make and save publication quality maps and graphs. You can select, mask and filter data you want. You can find summary statistics for areas and regions of the world, and you can make several types of plot to summarize it. Well done! I hope you have found this series of R notebooks helpful. Good luck in using these skills for your own work, and enjoy! 
+
+# Bonus!! If you want to continue learning R... 
+So this tutorial covered a gigantic amount in a short space of time. R can do a huge amount, and is used in a huge number of different fields. R is used extensivly in tech companies such as Google and Microsoft, is used in every university in the world, and in many major companies in their data analysis and data science teams. R can make your coursework in many modules at university easier too - just use your imagination! Whether for fun, for a career, or just to make some of your coursework easier, you might want to keep learning R. There are a million tutorials, books and videos online to teach you R for free. However R comes with a package called Swirl, which teaches you R from inside R studio. You can install it in the usual way (install.packages("swirl")) and then load it in the usual way (library("swirl")). You can then start swirl by typing swirl() at the R console at the bottom of the screen. Download one of the free courses and continue learning R. :) 
+
 
 ```{r echo=FALSE, results='hide'}
 # This line of code extracts all R code from this document
