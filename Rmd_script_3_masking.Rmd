@@ -88,18 +88,15 @@ library("RColorBrewer")
 image.plot(lon, lat, yield_difference, col=rev(brewer.pal(9,'RdBu')), legend.lab="Difference in yields (t ha-1 yr-1 (dry matter))")
 ```
 
-Sometimes there is a lot of increase but almost no decrease in something over time (or the opposite, lots of decrease and little increase). Plotting this kind of data can end up with the white of the colour palette not being centered over 0 (remember if we are looking at a difference map made by subtracting one time slice from another a value of 0 means there is no change, so this is important for understanding the data!). A polar colour palette such as what we are using needs to be centered at zero, otherwise it gives a very skewed message. A useful cheat to handle this in R is to make a single square in our "yield_difference" matrix the positive largest absolute value in the whole matrix, and another square the negative largest absolute value in the whole matrix. This means the colourbar will be perfectly centered at 0, because the colourbar fit's itself between the smallest and largest values. However note, *you shouldn't do this before extracting any summary statistics* about the data (because we are actually changing two values of the data), and also *you shouldn't do this if the data is low resolution*, as you may be able to actually see the values you have changed. 
+Sometimes there is a lot of increase but almost no decrease in something over time (or the opposite, lots of decrease and little increase). Plotting this kind of data can end up with the white of the colour palette not being centered over 0 (remember if we are looking at a difference map made by subtracting one time slice from another a value of 0 means there is no change, so this is important for understanding the data!). A polar colour palette such as what we are using needs to be centered at zero, otherwise it gives a very skewed message. This is simple to do using the "zlim=" argument. This allows us to set the maximum and minimum values to be plotted in colour. If we use the negative and posative same values, the colourbar will automatically have 0 in the middle. 
+
 ```{r}
-# Cheat at centering the colourbar at 0 by making the lowest right hand corner the posative maximum absolute value, and making the square next to it the negative maximum absolute value. Do not do this before taking summary statistics of the data, as we are actually changing the data to make it plot how we want it to. Also do not use with low resolution data, as you may be able to see the values you have changed. 
-yield_difference_altered = yield_difference
-yield_difference_altered[1,1] = max(abs(yield_difference_altered), na.rm=T) # na.rm=T is short for na.rm=TRUE. This means to remove the NA values before finding the maximum of the absolute value. If na.rm=T isn't here, the abs function will return NA and the code won't work as expected. Remember many functions in R will return NA if there are any NAs in the data, kinda as a warning. For example "max(c(1,5,NA, 500))" will return NA, but "max(c(1,5,NA,500), na.rm=T)" will return 500. 
-yield_difference_altered[2,1] = -max(abs(yield_difference_altered), na.rm=T) # na.rm=T is explained above.
-image.plot(lon, lat, yield_difference_altered, col=rev(brewer.pal(9,'RdBu')), legend.lab="Difference in yields (t ha-1 yr-1 (dry matter))")
+# Center the colourbar at 0 by controlling the values for z (in this case, colour of the variable) to have the same value for negative and posative values, e.g. -5 and 5, or -261 and 261, or whatever value. Note we again use the concatenate function "c()" to enclose the two values. 
+image.plot(lon, lat, yield_difference, col=rev(brewer.pal(9,'RdBu')), legend.lab="Difference in yields (t ha-1 yr-1 (dry matter))", zlim=c(-4,4))
+map(add=T, col='gray', lwd=0.5)
 ```
 
 OK this is cool. Now that we've set the colour bar we can see that between time slices 2 and 3, actually most of the world only changes a tiny bit. But certain regions seem to be changing much more. 
-
-
 
 ## Summary statistics on data 
 You might well want to take summary statistics for a grid of data. This is incredibly easy in R. Say, for example, you wanted to find the mean of our yield_difference, i.e. we wanted to find the average global change between slices 2 and 3:
