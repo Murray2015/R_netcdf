@@ -1,7 +1,7 @@
 ## ------------------------------------------------------------------------
 ## Use the workflow from R notebook 2 to read in the NetCDF file 
 # Set the working directory to where the data files are saved
-setwd("~/Documents/scratch/R_netcdf") # This is the file path to where I have saved my data files on my computer. Your file path will be different. Either use Windows Explorer (Finder on a mac) to find the file path, or use the menu at the top of R studio to set the working directory instead. If you want to use the menu instead of this line of code, at the top of R studio click Session >  Set working directory > Choose directory, and navigate to the folder where the data files are saved.
+setwd("~/Documents/scratch/R_netcdf") # This is the file path to where I have saved my data files on my computer. Your file path will be different. Either use Windows Explorer (Finder on a mac) to find the file path, or use the menu at the top of R studio to set the working directory instead. If you want to use the menu instead of this line of code, at the top of R studio click Session >  Set working directory > Choose directory, and navigate to the folder where the data files are saved. Finally, note windows users need to use two backslashes (i.e. \\) rather than a single forward slash. This is one of those differences between Windows and Mac/Linux.
 
 ## ------------------------------------------------------------------------
 # Load the ncdf4 library into R. (note, we installed this with install.packages() in Notebook 2)
@@ -15,13 +15,8 @@ lat=ncvar_get(ncfile, 'lat')
 lon=ncvar_get(ncfile,'lon')
 time=ncvar_get(ncfile, "time")
 yield = ncvar_get(ncfile, 'yield_mai')
-# Extract attributes from the NetCDF file
-yield_units=ncatt_get(ncfile, "yield_mai", "units")
-yield_fillvalue <- ncatt_get(ncfile,"yield_mai","_FillValue")
 # Close the NetCDF file connection
 nc_close(ncfile)
-# replace netCDF fill values with NA's
-yield[yield==yield_fillvalue$value] <- NA
 # Extract the first time slice from the NetCDF file as a matrix, and store in a variable called first_yield_slice. 
 first_yield_slice = yield[,180:1,1]
 
@@ -49,20 +44,18 @@ yield3 = yield[,180:1,3]
 # Find the difference between the two matrixs of data. 
 yield_difference = yield3 - yield2
 # Make a plot of the difference
-image.plot(yield_difference)
+image.plot(yield_difference, legend.lab="Difference in yields (t ha-1 yr-1 (dry matter))")
 
 ## ------------------------------------------------------------------------
 # Load the RColorBrewer library (which we installed in Notebook 2 with the install.packages() function) to give us more colour ramps.
 library("RColorBrewer")
 # Remake the difference map with a polar colour pallete (i.e. cold to hot colours) with 9 levels. Note the rev() function used to reverse the colour pallete, as by default it goes from red to blue not blue to red. 
-image.plot(lon, lat, yield_difference, col=rev(brewer.pal(9,'RdBu')))
+image.plot(lon, lat, yield_difference, col=rev(brewer.pal(9,'RdBu')), legend.lab="Difference in yields (t ha-1 yr-1 (dry matter))")
 
 ## ------------------------------------------------------------------------
-# Cheat at centering the colourbar at 0 by making the lowest right hand corner the posative maximum absolute value, and making the square next to it the negative maximum absolute value. Do not do this before taking summary statistics of the data, as we are actually changing the data to make it plot how we want it to. Also do not use with low resolution data, as you may be able to see the values you have changed. 
-yield_difference_altered = yield_difference
-yield_difference_altered[1,1] = max(abs(yield_difference_altered), na.rm=T) # na.rm=T is short for na.rm=TRUE. This means to remove the NA values before finding the maximum of the absolute value. If na.rm=T isn't here, the abs function will return NA and the code won't work as expected. Remember many functions in R will return NA if there are any NAs in the data, kinda as a warning. For example "max(c(1,5,NA, 500))" will return NA, but "max(c(1,5,NA,500), na.rm=T)" will return 500. 
-yield_difference_altered[2,1] = -max(abs(yield_difference_altered), na.rm=T)
-image.plot(lon, lat, yield_difference_altered, col=rev(brewer.pal(9,'RdBu')))
+# Center the colourbar at 0 by controlling the values for z (in this case, colour of the variable) to have the same value for negative and posative values, e.g. -5 and 5, or -261 and 261, or whatever value. Note we again use the concatenate function "c()" to enclose the two values. 
+image.plot(lon, lat, yield_difference, col=rev(brewer.pal(9,'RdBu')), legend.lab="Difference in yields (t ha-1 yr-1 (dry matter))", zlim=c(-4,4))
+map(add=T, col='gray', lwd=0.5)
 
 ## ------------------------------------------------------------------------
 # Find the mean of our difference between slices 2 and 3. 
@@ -75,7 +68,7 @@ mean(yield_difference, na.rm=T)
 ## ------------------------------------------------------------------------
 # Find other summary statistics for the difference between slices 2 and 3. 
 median(yield_difference, na.rm=T)
-sd(yield_difference, na.rm=T)
+sd(yield_difference, na.rm=T) # the sd function returns the standard deviation. 
 max(yield_difference, na.rm=T)
 min(yield_difference, na.rm=T)
 
@@ -99,6 +92,14 @@ polar_north = 90 + 60
 polar_yield_slice = temp_slice[ , c(1:polar_south, polar_north:180) ]
 # Make a quick plot of the data. Note it will look weird because Antarctica and lots of Arctica Canada and Greenland don't appear to have been modelled. However you can see the top of Norway and parts of Russia. 
 image(polar_yield_slice)
+
+## ------------------------------------------------------------------------
+# The polar regions are regions above 60 degrees north. However remember our grid goes from 0 to 180 at the sides, not from -90 to +90. Therefore to get the correct locations we do 90-[lattitude of interest] or 90+[lattitude of interest] depending of whether we are looking at the north or south pole.
+polar_north = 90 + 60 
+# use the square bracket notation to subset our grid of data. Leave the first space before the comma blank to select all longitudes. The second space is a little complex. We use polar_north:180 to get the north polar region. 
+n_polar_yield_slice = temp_slice[ , polar_north:180 ]
+# Make a quick plot of the data. Note it will look weird because Antarctica and lots of Arctica Canada and Greenland don't appear to have been modelled. However you can see the top of Norway and parts of Russia. 
+image(n_polar_yield_slice)
 
 ## ------------------------------------------------------------------------
 # The longitude bounds for north and south America are roughly 160 degrees west to 30 degrees west. However remember our matrix goes from 0 at the left hand side to 360 at the right hand side, rather than the more familliear -180 to +180. Therefore we need to do 180-160 for 160 degrees west and 180-30 for 30 degrees west.
@@ -142,7 +143,8 @@ mask = ncvar_get(ncfile, 'region_mask')
 # Close the connection to the NetCDF file.
 nc_close(ncfile)
 # Make a quick plot of the values in the mask file 
-image.plot(mask, col=rainbow(9))
+image.plot(lon, lat, mask, col=rainbow(9), legend.lab="Number of the zone in the mask")
+map(database = 'world', add = T, lwd=1.5)
 
 ## ------------------------------------------------------------------------
 # After plotting the mask, we see that the format of the mask is numbers from 1 to 9, rather than the 1s and NAs that we want. Here we make a new mask for tropical broadleaved deciduous forest using the ifelse() function. This line of code makes a matrix where tropical broadleaved deciduous forest are set to 1, while the rest of the matrix is set to NA. This matrix is then saved to the variable tropical_broad_dec_mask.
@@ -150,7 +152,8 @@ tropical_broad_dec_mask = ifelse(mask == 2,1,NA)
 # Select that data by multiplying the data in first_yield_slice by the mask. 
 first_yield_slice_tropical_broad = first_yield_slice * tropical_broad_dec_mask
 # Make a plot of our subsetted data. 
-image(first_yield_slice_tropical_broad)
+image.plot(lon, lat, first_yield_slice_tropical_broad, legend.lab="Yield (t ha-1 yr-1 (dry matter))")
+map(database = 'world', add = T, lwd=1.5)
 
 ## ------------------------------------------------------------------------
 # Summary statistics are things like mean, median, maximum, minimum, interquartile ranges, etc. Summary statistics are often the best way to answer scientific questions, such as "what is the maximum modeled temperature in a tropic broadleaf forest". Let's see an example of how easy it is to get a summary statistic for the yield of the tropical broadleaf forests
@@ -162,19 +165,23 @@ tropical_broad_ever_mask = ifelse(mask == 1,1,NA)
 # Select that data by multiplying the data in first_yield_slice by the mask. 
 first_yield_slice_tropical_broad_ever = first_yield_slice * tropical_broad_ever_mask
 # Make a plot of our subsetted data. 
-image(first_yield_slice_tropical_broad_ever)
+image.plot(lon, lat, first_yield_slice_tropical_broad_ever, legend.lab="Yield (t ha-1 yr-1 (dry matter))")
+map(database = 'world', add = T, lwd=1.5)
 # Find the maximum yield in this subset
 max(first_yield_slice_tropical_broad_ever, na.rm=T)
 
 ## ------------------------------------------------------------------------
 # Here we extract a time series from the yield data by specifying a single lattitude and longitude, but then leave the third space inside the square brackets blank to select all time slices at that lat/long location. 
 time_series_australia = yield[250,60,]
+
 # Plot the time series we have just extracted. 
-plot(time_series_australia, type='l', xlab="Time step", ylab='Yield')
+plot(time_series_australia, type='l', xlab="Time step", ylab='Yield (t ha-1 yr-1 (dry matter))')
 
 ## ------------------------------------------------------------------------
 # Finally, make a histogram of our time series data. Just because we can. 
 hist(time_series_australia, col='black', main='', xlab='Yield')
+# Add a box around our plot - just because I think it looks nicer! Remember to run this chunk all at once with Ctrl+Shift+Enter (or Cmd+Shift+Enter on Mac).
+box()
 
 ## ----echo=FALSE, results='hide'------------------------------------------
 # This line of code extracts all R code from this document

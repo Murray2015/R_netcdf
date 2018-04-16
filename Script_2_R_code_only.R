@@ -34,21 +34,6 @@ length(time)
 length(gpp)
 
 ## ------------------------------------------------------------------------
-# Use the head() function to see the first 5 entries of each variable, to help us understand out data. 
-head(lat)
-head(lon)
-head(time)
-head(gpp)
-
-## ------------------------------------------------------------------------
-# Print the last few values in the gpp variable to see if it is still full of NAs. 
-tail(gpp)
-
-## ------------------------------------------------------------------------
-# Remove all the NAs, and sum up any numbers that remain. If we get a value of 0, there is no data in the gpp variable and it is all NAs, which probably means we have loaded the file incorrectly. If we get any value above 0 then the gpp variable does have some data in it. If the function returns NA, then we have forgotten to use the na.rm=TRUE function arguemnt. 
-sum(gpp, na.rm=TRUE)
-
-## ------------------------------------------------------------------------
 # Close the NetCDF file connection
 nc_close(ncfile)
 
@@ -124,7 +109,7 @@ map(database = 'world', add = T, lwd=1.5)
 png("gpp_map.png", width=10, height=5, units = 'in', res = 300)
 # Same par(), image.plot() and map() functions as before, but using the plasma color palette from the viridis package.
 par(mar=c(3,3,3,3))
-image.plot(lon, lat, flipped_first_gpp_slice, col=plasma(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+image.plot(lon, lat, flipped_first_gpp_slice, col=plasma(256), xlab="", ylab="", main="Carbon Mass Flux out of Atmosphere due to Gross Primary Production on Land", legend.lab="kg m-2 s-1", legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
 # close the png graphics device to complete exporting the plot. 
 dev.off()
@@ -139,4 +124,16 @@ install.packages("fields", type="binary")
 ## ------------------------------------------------------------------------
 # replace netCDF _FillValues with NA's
 gpp[gpp==9999] = NA
+
+## ------------------------------------------------------------------------
+# Use the head() function to see the first 5 entries of each variable, to help us understand our data. 
+head(gpp)
+
+## ------------------------------------------------------------------------
+# Print the last few values in the gpp variable to see if it is still full of NAs. 
+tail(gpp)
+
+## ------------------------------------------------------------------------
+# Remove all the NAs, and sum up any numbers that remain. If we get a value of 0, there is no data in the gpp variable and it is all NAs, which probably means we have loaded the file incorrectly. If we get any value above 0 then the gpp variable does have some data in it. If the function returns NA, then we have forgotten to use the na.rm=TRUE function arguemnt. 
+sum(gpp, na.rm=TRUE)
 

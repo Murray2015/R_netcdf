@@ -138,11 +138,21 @@ str(my_data)
 
 ## ------------------------------------------------------------------------
 # Plot the ASCII time series data. Note the new expression() function, which allows mathematical expressions, superscripts and subscripts to be used in plot labels. 
-plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]))
+plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2] * " (ppm)"))
 
 ## ------------------------------------------------------------------------
 # Change from a scatter graph to a line graph with the type='l' function argument. lwd=2 changes the line width. 
-plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]), type='l', lwd=2, col="lightgreen")
+plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2] * ' (ppm)'), type='l', lwd=2, col="darkgreen")
+
+## ------------------------------------------------------------------------
+## RUN THIS CODE CHUNK ALL AT THE SAME TIME using Ctrl+Shift+Enter on a PC or Cmd+Shift+Enter on a Mac. 
+
+# Open a plot using the jpeg() function. This gives a plot 5 inches across and 4 inches high with a resolution of 300 dots per inch. This is important because many journals demand plots and figures in a certain dpi! Must run the dev.off() function after the plotting command to complete the plot saving process. 
+jpeg(filename="my_first_plot.jpg", width=5, height=4, units='in', res=300)
+# Change from a scatter graph to a line graph with the type='l' function argument. lwd=2 changes the line width. 
+plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2] * ' (ppm)'), type='l', lwd=2, col="darkgreen")
+# Close the graphics device to save the plot with dev.off(). If the plot is saved sucessfullly, "null device 1" should be printed in R, and the plot should appear in your working directory. 
+dev.off()
 
 ## ----echo=FALSE, results='hide'------------------------------------------
 # This line of code extracts all R code from this document
