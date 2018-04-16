@@ -310,19 +310,35 @@ Now if we recheck the column names with str(), we should see they have changed.
 str(my_data)
 ```
 
-Easy! Lets make a quick scatter plot of this data. Note the use of a new function, the "expression()" function, which lets us use mathematical notation and sub and superscripts in axes labels. If you want to use mathematical symbols and expressions in R axes labels, Google more about R's "expression()" function. 
+Easy! Lets make a quick scatter plot of this data. Note the use of a new function, the "expression()" function, which lets us use mathematical notation and sub and superscripts in axes labels. If you want to use mathematical symbols and expressions in R axes labels, Google more about R's "expression()" function. Note the square brackets for subscripts (use "CO"^2 for superscripts inside the expression function). Also note the *, which inside the expression function means to stick two bits of text together. 
 
 ```{r}
 # Plot the ASCII time series data. Note the new expression() function, which allows mathematical expressions, superscripts and subscripts to be used in plot labels. 
-plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]))
+plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2] * " (ppm)"))
 ```
 
 The graph looks quite good, but with time series data like this it would be more normal to plot it as a line graph. Note "time series" data is any data measured at regularly spaced intervals. This is done by changing the "type=" function argument. We can make the line thicker with the "lwd=" argument, and we might want to change the color. 
 
 ```{r}
 # Change from a scatter graph to a line graph with the type='l' function argument. lwd=2 changes the line width. 
-plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2]), type='l', lwd=2, col="lightgreen")
+plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2] * ' (ppm)'), type='l', lwd=2, col="darkgreen")
 ```
+
+## Finally, let's save our plot. 
+We will cover this in a future notebook as well, but let's learn how to save a plot right now. In R, there are just two steps to saving a plot as a format you would like (e.g. a jpeg or a tiff). The first step is to open a graphics device using one of the functions "png()", "jpeg()", "png()" or "tiff()". Then make your plot as normal in R. Finally, run the "dev.off()" function, which closes the graphics device and saves the plot. The plot will then appear in your working directory. Use windows explore on a PC or finder on a Mac to see your plot. 
+
+```{r}
+## RUN THIS CODE CHUNK ALL AT THE SAME TIME using Ctrl+Shift+Enter on a PC or Cmd+Shift+Enter on a Mac. 
+
+# Open a plot using the jpeg() function. This gives a plot 5 inches across and 4 inches high with a resolution of 300 dots per inch. This is important because many journals demand plots and figures in a certain dpi! Must run the dev.off() function after the plotting command to complete the plot saving process. 
+jpeg(filename="my_first_plot.jpg", width=5, height=4, units='in', res=300)
+# Change from a scatter graph to a line graph with the type='l' function argument. lwd=2 changes the line width. 
+plot(x=my_data$year, y=my_data$co2, xlab="Year", ylab=expression("Annual CO"[2] * ' (ppm)'), type='l', lwd=2, col="darkgreen")
+# Close the graphics device to save the plot with dev.off(). If the plot is saved sucessfullly, "null device 1" should be printed in R, and the plot should appear in your working directory. 
+dev.off()
+```
+
+
 
 ## End of notebook 1
 OK, so if you haven't seen R before, that was a HUGE amount of information. You are probably feeling totally overwhelmed, and like this course isn't for you. If you feel this way don't panic, it is normal to feel like this. Go and take a break and have a cuppa immediately, and then possibly go through this whole notebook again. There is so much information in this that it will be difficult to take it all in in just one sitting. 

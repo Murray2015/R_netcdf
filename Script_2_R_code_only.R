@@ -49,23 +49,8 @@ tail(gpp)
 sum(gpp, na.rm=TRUE)
 
 ## ------------------------------------------------------------------------
-# Get the long name attribute for the gpp variable, for plotting later
-gpp_name=ncatt_get(ncfile, "gpp", "long_name")
-print(gpp_name)
-# Get the units of the gpp variable, for plotting later 
-gpp_units=ncatt_get(ncfile, "gpp", "units")
-print(gpp_units)
-# Get the value that corresponds to NA in the gpp variable. 
-gpp_fillvalue <- ncatt_get(ncfile,"gpp","_FillValue")
-print(gpp_fillvalue)
-
-## ------------------------------------------------------------------------
 # Close the NetCDF file connection
 nc_close(ncfile)
-
-## ------------------------------------------------------------------------
-# replace netCDF _FillValues with NA's
-gpp[gpp==gpp_fillvalue$value] = NA
 
 ## ------------------------------------------------------------------------
 # Find the dimensions of the gpp variable
@@ -121,7 +106,7 @@ map(database = 'world', add = T, lwd=1.5)
 # Change the margins of the plot, to stop to padding cutting the ends off our very long title.
 par(mar=c(5.1,3,4.1,3))
 # Same image.plot() and map() code as last time, but remove x and y labels (with xlab= and ylab=), add a main title (with main=), add a legend lable (with legend.lab=), and adjust the location and padding of the legend label so it is not under the legend text (with legend.line= and legend.mar=)
-image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")), xlab="", ylab="", main="Carbon Mass Flux out of Atmosphere due to Gross Primary Production on Land", legend.lab="kg m-2 s-1", legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
 
 ## ------------------------------------------------------------------------
@@ -131,7 +116,7 @@ map(database = 'world', add = T, lwd=1.5)
 library("viridis")
 # Same par(), image.plot() and map() functions as before, but using the viridis colour palette.
 par(mar=c(3,3,3,3))
-image.plot(lon, lat, flipped_first_gpp_slice, col=viridis(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+image.plot(lon, lat, flipped_first_gpp_slice, col=viridis(256), xlab="", ylab="", main="Carbon Mass Flux out of Atmosphere due to Gross Primary Production on Land", legend.lab="kg m-2 s-1", legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
 
 ## ------------------------------------------------------------------------
@@ -147,4 +132,11 @@ dev.off()
 ## ----echo=FALSE, results='hide'------------------------------------------
 # This line of code extracts all R code from this document
 knitr::purl("Rmd_script_2_netcdf.Rmd", output="Script_2_R_code_only.R")
+
+## ------------------------------------------------------------------------
+install.packages("fields", type="binary")
+
+## ------------------------------------------------------------------------
+# replace netCDF _FillValues with NA's
+gpp[gpp==9999] = NA
 

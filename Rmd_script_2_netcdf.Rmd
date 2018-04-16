@@ -40,8 +40,7 @@ What we are going to walk you through doing in the next few code chunks is the s
 1. Open the NetCDF file connection in R with the "nc_open()" function
 2. Find out what is actually inside the NetCDF file with the "print()" function
 3. Extract the variables we want to use from the NetCDF file using the "ncvar_get()" function
-4. Extract any attributes we want from the NetCDF file using the "ncatt_get()" function
-5. Close the NetCDF file connection in R with the "nc_close()" function.
+4. Close the NetCDF file connection in R with the "nc_close()" function.
 
 Each of the steps above is quite easy, so don't panic! 
 
@@ -110,62 +109,13 @@ length(time)
 length(gpp)
 ```
 
-OK, so that final variable gpp has 23 million entries. Probably a good thing we didn't just print that to the screen. (Also, if you're still thinking why are we using R not excel, try opening a 23 million line long file in excel). R has two useful functions, "head()" and "tail()", for looking at the first few or last few entries of a really long file without printing everything. Lets have a quick look at the first few values of each variable. 
-
-```{r}
-# Use the head() function to see the first 5 entries of each variable, to help us understand out data. 
-head(lat)
-head(lon)
-head(time)
-head(gpp)
-```
-
-So it looks like the latitude variable goes from -90 upwards, i.e. from the south pole. That's fine. The longitude variable seems to go from -180 upwards, which sounds about right too. The time variable seems to be a bit crazy though! We should look back at the meta data from the print() function. If you look back, we find out that the time variable is in units of "days since 1582-10-14 00:00:00". OK, so we are probably looking for a big number then. The last variable gpp seems to have lots of NAs (standing for not applicable). This might mean we have loaded it incorrectly, or it might just be because there is no data at that point. Lets look at the end of the variable:
-
-```{r}
-# Print the last few values in the gpp variable to see if it is still full of NAs. 
-tail(gpp)
-```
-
-Hmm. The end of the variable also seems to be filled with NAs. We might now be slightly worried about whether all of the gpp variable is full of NAs. A quick way to check this without reading all 23 million values is to sum up the whole vector using the "sum()" function and see if it comes to a value greater than 0. **Note** you *need* the na.rm=TRUE function argument, which tells R to remove the NAs before summing, otherwise R will return NA. 
-
-```{r}
-# Remove all the NAs, and sum up any numbers that remain. If we get a value of 0, there is no data in the gpp variable and it is all NAs, which probably means we have loaded the file incorrectly. If we get any value above 0 then the gpp variable does have some data in it. If the function returns NA, then we have forgotten to use the na.rm=TRUE function arguemnt. 
-sum(gpp, na.rm=TRUE)
-```
-
-OK, the value is above 0. So we do have data in the gpp variable. It's OK. 
-
-The last thing we want to do is extract some of the attributes in the meta-data. Lets get the full name of the gpp variable and it's units. We can then use these for things like plot titles later. Let's also get the _FillValue. This is the value in the NetCDF file that corresponds to NA (which is when the number doesn't exist in the data, for example when the oceans aren't modelled, as you will notice in this dataset later). The fact that we saw lots of NAs with the head and tail function might show that R has managed to fill the _FillValue to NA for us already, but it's better to be safe than sorry! 
-
-```{r}
-# Get the long name attribute for the gpp variable, for plotting later
-gpp_name=ncatt_get(ncfile, "gpp", "long_name")
-print(gpp_name)
-# Get the units of the gpp variable, for plotting later 
-gpp_units=ncatt_get(ncfile, "gpp", "units")
-print(gpp_units)
-# Get the value that corresponds to NA in the gpp variable. 
-gpp_fillvalue <- ncatt_get(ncfile,"gpp","_FillValue")
-print(gpp_fillvalue)
-```
-
-From printing these, we can see that each extracted attribute has an "hasatt" and a "value". hasatt stands for "has attribute" and is either true or false. If it is true, the "value" holds the value. 
+OK, so that final variable gpp has 23 million entries. Probably a good thing we didn't just print that to the screen. (Also, if you're still thinking why are we using R not excel, try opening a 23 million line long file in excel). 
 
 We have now extracted all the data we need from the NetCDF file connection. We can now close the connection to the file. This frees up some computer memory for us. Note that we didn't need to do this in the last notebook for the "read.csv()" and "read.table()" functions, which close the data file automatically. 
 
 ```{r}
 # Close the NetCDF file connection
 nc_close(ncfile)
-```
-
-Now for a super useful little line of code. NetCDF files often have NA values that correspond to a very big or very small number. For example, a common number to represent NA is -9999.99. If we try to plot the gpp variable in R, the colour scale will expand to -9999.99 and so the map will be impossible to understand. Instead we want to set these -9999.99 values (or whatever the NetCDF's _FillValue is) to NA inside R. R will then not plot anything which is NA, and our plots will be human readable. 
-
-The line of code below is short, but quite complex. What the line of code does, is use the square brackets notation to extract any values in the gpp variable which equal the value in gpp_fillvalues, and set those extracted values to NA. If you need to use this line of code in your own work, just copy and paste and change the variable names to the variable names in your work. 
-
-```{r}
-# replace netCDF _FillValues with NA's
-gpp[gpp==gpp_fillvalue$value] = NA
 ```
 
 Now that we have extracted all the data in our NetCDF file, we are ready to start making some maps of the data! 
@@ -263,17 +213,17 @@ image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")))
 map(database = 'world', add = T, lwd=1.5)
 ```
 
-OK, now lets make the plot itself a bit better. Lets add a title, and remove the x and y labels using the main=, xlab= and ylab= function arguments we have already learnt. We can use our gpp_name variable that we extracted from the NetCDF file near the top of this script, and access it's contents by calling gpp_name$value. If all of this is seeming like an overwhelming amount to remember, bear in mind you can just copy and paste code from this document and just modify names. You don't have to remember all of this. There is no exam on R syntax :) 
+OK, now lets make the plot itself a bit better. Lets add a title, and remove the x and y labels using the main=, xlab= and ylab= function arguments we have already learnt. Look back up at the output of the print(ncfile) near the top of this script for where I got the correct name of the variable and the units. If all of this is seeming like an overwhelming amount to remember, bear in mind you can just copy and paste code from this document and just modify names. You don't have to remember all of this. There is no exam on R syntax :) 
 
-If you change just these arguments and run the code you will find half the title has been chopped off the side of the plot! Aggghhh! This is because the title is quite long, and R by default has a fixed amount of padding around plots which our long title runs over. This is rarely a problem, but this is one of those exceptions! We can fix this by calling the par() function (short for plot PARameters) and change the mar=c() argument (short for MARgins). The default for this is par(mar=c(5.1, 4.1, 4.1, 2.1)). This is for graphic design reasons that I imagine someone spent ages deciding on. The numbers refer to the bottom, left, top and right hand margins respectively. Therefore changing the second or fourth number to a smaller value should fix our problem. 
+If you change just these arguments and run the code you will find half the title has been chopped off the side of the plot! Aggghhh! This is because the title is quite long, and R by default has a fixed amount of padding around plots which our long title runs over. This is rarely a problem, but this is one of those exceptions! We can fix this by calling the par() function (short for plot PARameters) and change the mar=c() argument (short for MARgins). The default for this is par(mar=c(5.1, 4.1, 4.1, 2.1)). A bit random, I know. This is for graphic design reasons that I imagine someone spent ages deciding on. The numbers refer to the bottom, left, top and right hand margins respectively. Changing the second or fourth number to a smaller value should fix our problem. 
 
-Finally, we want to add the units of our plot to the legend. To do this I googled the image.plot function and found this page [https://www.rdocumentation.org/packages/fields/versions/9.6/topics/image.plot](https://www.rdocumentation.org/packages/fields/versions/9.6/topics/image.plot) which tells us that the legend.lab= argument allows us to specify the text, the legend.line= argument moves the legend text to the side so it is not underneath the legend labels, and the legend.mar= expands the legend margin. Try changing the values and rerunning the code block several times to get a feeling for what each argument does. 
+Finally, we want to add the units of our plot to the legend. To do this I googled the image.plot function and found this page [https://www.rdocumentation.org/packages/fields/versions/9.6/topics/image.plot](https://www.rdocumentation.org/packages/fields/versions/9.6/topics/image.plot) which tells us that the legend.lab= argument allows us to specify the text, the legend.line= argument moves the legend text to the side so it is not underneath the legend labels, and the legend.mar= expands the legend margin. Try changing the values of different function arguments and rerunning the code block several times to get a feeling for what each argument does. 
 
 ```{r}
 # Change the margins of the plot, to stop to padding cutting the ends off our very long title.
 par(mar=c(5.1,3,4.1,3))
 # Same image.plot() and map() code as last time, but remove x and y labels (with xlab= and ylab=), add a main title (with main=), add a legend lable (with legend.lab=), and adjust the location and padding of the legend label so it is not under the legend text (with legend.line= and legend.mar=)
-image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+image.plot(lon, lat, flipped_first_gpp_slice, col = rev(brewer.pal(9,"YlGnBu")), xlab="", ylab="", main="Carbon Mass Flux out of Atmosphere due to Gross Primary Production on Land", legend.lab="kg m-2 s-1", legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
 ```
 
@@ -287,7 +237,7 @@ A final quick note on a set of colour palettes found in Python and Matlab called
 library("viridis")
 # Same par(), image.plot() and map() functions as before, but using the viridis colour palette.
 par(mar=c(3,3,3,3))
-image.plot(lon, lat, flipped_first_gpp_slice, col=viridis(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+image.plot(lon, lat, flipped_first_gpp_slice, col=viridis(256), xlab="", ylab="", main="Carbon Mass Flux out of Atmosphere due to Gross Primary Production on Land", legend.lab="kg m-2 s-1", legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
 ```
 
@@ -302,7 +252,7 @@ Note that if you save plots as a pdf, you can then open them in Inkscape or Adob
 png("gpp_map.png", width=10, height=5, units = 'in', res = 300)
 # Same par(), image.plot() and map() functions as before, but using the plasma color palette from the viridis package.
 par(mar=c(3,3,3,3))
-image.plot(lon, lat, flipped_first_gpp_slice, col=plasma(256), xlab="", ylab="", main=gpp_name$value, legend.lab=gpp_units$value, legend.line=4, legend.mar=7)
+image.plot(lon, lat, flipped_first_gpp_slice, col=plasma(256), xlab="", ylab="", main="Carbon Mass Flux out of Atmosphere due to Gross Primary Production on Land", legend.lab="kg m-2 s-1", legend.line=4, legend.mar=7)
 map(database = 'world', add = T, lwd=1.5)
 # close the png graphics device to complete exporting the plot. 
 dev.off()
@@ -323,3 +273,59 @@ Well done for reaching the end of Notebook 2. I'm genuinely proud of you - that 
 # This line of code extracts all R code from this document
 knitr::purl("Rmd_script_2_netcdf.Rmd", output="Script_2_R_code_only.R")
 ```
+
+
+## Troubleshooting 
+
+# The fields package won't install on my Mac! 
+Ugh. This is a Mac thing - occasionally some packages wont find the right compiler. Try running this:
+
+```{r}
+install.packages("fields", type="binary")
+```
+
+if that doesn't work, use the university computers rather than your Mac. If you totally insist on using your Mac, then dig around on the internet for how to install xtools, the latest version of gcc, restart your computer, and try the above line again. But you do this totally at your own risk, if this is done wrong you can mess up your Mac. 
+
+# There are loads of really big numbers in my data (or really negative)
+Sometimes numerical models output null, or infinity, or some value that the creator thinks isn't "real" data but an artifact of whatever program they are running. Kinda like when you accidentally divide by 0 - if you remember back to GCSE, there is no such thing as dividing by zero. It can't be done. Sometimes things go wrong and they need to be hidden, or set to some placeholder value that we know corresponds to no data. Often the values 9999 or -9999 are used for this. 
+
+The way we have taught reading the NetCDF files normally deals with this for you. But occasionally this doesn't work and we get these values still in the data, which causes big problems when making a map of the data or a plot. 
+
+The proceedure to get rid of these values is the following: 
+1. Find what value corresponds to "no data" by looking at the output of the "_FillValues" or "no_data" or "missing_values" attributes in the print(ncfile) output. 
+2. Run the confusing line of code below, which will change those placeholder values to "NA" inside R, which won't be plotted, thus saving the day! 
+
+The line of code below is short, but quite complex. What the line of code does, is use the square brackets notation to extract any values in the gpp variable which equal the value in gpp_fillvalues, and set those extracted values to NA. If you need to use this line of code in your own work, just copy and paste and change the variable names to the variable names in your work. 
+
+```{r}
+# replace netCDF _FillValues with NA's
+gpp[gpp==9999] = NA
+```
+
+# There doesn't seem to be any data in my variable! 
+First, run length() on your variable. If it has a length of 0, then you are correct. There is no data in your variable. You've probably incorectly put the data in the variable. 
+
+# My data in my variable seems to be long, but only full of NAs?! 
+First, use length() to see how big the variable is. If it's less than, say, around 200, then just print it to the screen and look at what is in it. If it is only full of NAs, then you have loaded the data incorectly. 
+If the length() function shows the variable is much larger than 200, then you need to use different functions to look at the data. R has two useful functions, "head()" and "tail()", for looking at the first few or last few entries of a really long file without printing everything. Try that on the gpp variable, for example:
+```{r}
+# Use the head() function to see the first 5 entries of each variable, to help us understand our data. 
+head(gpp)
+```
+
+The variable gpp seems to have lots of NAs (which means no data at that point). This might mean we have loaded it incorrectly, or it might just be because there is no data at that point. Lets look at the end of the variable:
+
+```{r}
+# Print the last few values in the gpp variable to see if it is still full of NAs. 
+tail(gpp)
+```
+
+Hmm. The end of the variable also seems to be filled with NAs. We might now be slightly worried about whether all of the gpp variable is full of NAs. A quick way to check this without reading all 23 million values is to sum up the whole vector using the "sum()" function and see if it comes to a value greater than 0. If it does, then there is data in our gpp variable and we don't have to start searching through 23 million NAs to check. **Note** you *need* the na.rm=TRUE function argument in the "sum()" function, which tells R to remove the NAs before summing, otherwise R will return NA. 
+
+```{r}
+# Remove all the NAs, and sum up any numbers that remain. If we get a value of 0, there is no data in the gpp variable and it is all NAs, which probably means we have loaded the file incorrectly. If we get any value above 0 then the gpp variable does have some data in it. If the function returns NA, then we have forgotten to use the na.rm=TRUE function arguemnt. 
+sum(gpp, na.rm=TRUE)
+```
+
+OK, the value is above 0. So we do have data somewhere in the gpp variable. It's OK. Phew! 
+

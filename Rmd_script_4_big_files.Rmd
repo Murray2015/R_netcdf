@@ -3,11 +3,11 @@ title: "R Notebook"
 ---
 
 ## Bonus 2! 
-Ok so at the end of the last R notebook I said it was the end of the series. And I've been talking about 3 R notebooks throughout the previous notebooks. 
+Ok so at the end of the last R notebook I said it was the end of the series. And I've been talking about 3 R notebooks throughout the text in the previous three notebooks. 
 
 But then Sarah asked me to make sure all of here data worked in R as well. 
 
-Luckily Sarah's data does open and can be processed using all the same techniques as you have already learnt in the previous R notebooks. There are just a few extra steps for a couple of the files. Let's take a look! 
+Luckily Sarah's data does open and can be processed using all the same techniques as you have already learnt in the previous R notebooks. There are just a couple of extra steps for a couple of the files. Let's take a look! 
 
 First, let's load one of the 2D NetCDF files. Luckily these can be be loaded in exactly the same way as the NetCDF files in the other R notebooks. The only extra thing to notice is that the variable holding the missing values is not "_FillValue" as it was in the NetCDF files used in R Notebook 2 and 3. The missing values variable in the NetCDF file here is called "missing_values". I found this out by reading the output of print(ncfile) in the usual way as taught in the previous R notebooks. 
 
@@ -29,31 +29,9 @@ sed_CaCO3 = ncvar_get(ncfile, 'sed_CaCO3')
 carb_conc_CO3 = ncvar_get(ncfile, 'carb_conc_CO3')
 grid_topo = ncvar_get(ncfile, 'grid_topo')
 
-# Extract attributes from the NetCDF file
-sed_det_units = ncatt_get(ncfile, 'sed_det', "units")
-sed_CaCO3_units = ncatt_get(ncfile, 'sed_CaCO3', "units")
-carb_conc_CO3_units = ncatt_get(ncfile, 'carb_conc_CO3', "units")
-grid_topo_units = ncatt_get(ncfile, "grid_topo", "units")
-
-sed_det_name = ncatt_get(ncfile, "sed_det", "long_name")
-sed_CaCO3_name = ncatt_get(ncfile, "sed_CaCO3", "long_name")
-carb_conc_CO3_name = ncatt_get(ncfile, "carb_conc_CO3", "long_name")
-grid_topo_name = ncatt_get(ncfile, "grid_topo", "long_name")
-
-sed_det_missing_value = ncatt_get(ncfile, "sed_det", "missing_value")
-sed_CaCO3_missing_value = ncatt_get(ncfile, "sed_CaCO3", "missing_value")
-carb_conc_CO3_missing_value = ncatt_get(ncfile, "carb_conc_CO3", "missing_value")
-grid_topo_missing_value = ncatt_get(ncfile, "grid_topo", "missing_value")
 
 # Close the NetCDF file connection
 nc_close(ncfile)
-
-# Fill missing values with NA 
-sed_det[sed_det==sed_det_missing_value$value] <- NA
-sed_CaCO3[sed_CaCO3==sed_CaCO3_missing_value$value] <- NA
-carb_conc_CO3[carb_conc_CO3==carb_conc_CO3_missing_value$value] <- NA
-grid_topo[grid_topo==grid_topo_missing_value$value] <- NA
-
 ```
 
 Let's plot a quick map of the values of the 4 variables we have extracted. Remember our variables are currently a cube of data with dimensions latitude x longitude x time. We can get a single slice of them in the usual way, using the [latitude,longitude,time] square bracket notation. remember leaving one of the spaces empty selects all the data, so [,,1] selects all of the latitude, all of the longitude and just the first time value, to give us a time slice. 
@@ -87,17 +65,14 @@ Finally, let's look at one of Sarah's climate model outputs. This file has dimen
 ```{r}
 # Open a file connection to the NetCDF file
 ncfile <- nc_open("E:\\Murray\\R_netcdf-master\\R_netcdf-master\\140625.p0055c.x1p5CO2outgas\\140625.p0055c.x1p5CO2outgas\\biogem\\fields_biogem_3d.nc")
+
 # Print the NetCDFs header
 print(ncfile)
+
 # Extract variables from the NetCDF file
 lat=ncvar_get(ncfile, 'lat')
 lon=ncvar_get(ncfile,'lon')
 misc_pH = ncvar_get(ncfile, 'misc_pH')
-
-# Extract attributes from the NetCDF file
-misc_pH_units = ncatt_get(ncfile, 'misc_pH', "units")
-misc_pH_name=ncatt_get(ncfile, "misc_pH", "long_name")
-misc_pH_missing_value=ncatt_get(ncfile, "misc_pH", "missing_value")
 
 # Close the NetCDF file connection
 nc_close(ncfile)
@@ -110,22 +85,21 @@ dim(misc_pH)
 
 Then lets extract a time and depth slice. This is just a slice of all latitudes, all longitudes, at 1 depth, at one time. 
 ```{r}
-image.plot(lon, lat, misc_pH[,,1,1])
+image.plot(lon, lat, misc_pH[,,1,1], legend.lab = "pH")
 ```
 
 Finally, let's look at a method for changing the ticks around the plot. This is admitedly not very clear code, but it's an example of one of the few times that R is a bit of a pain!
-
 ```{r}
 # First make extra space on the right hand side of the plot, for the colourbar
 par(mar=c(5,4.5,4,7))
 # Then plot the misc_pH matrix using image() not image.plot(). Use the axes=F argument to not plot any axes. 
-image(lon, lat, misc_pH[,,1,1], axes=F, col=rainbow(256))
+image.plot(lon, lat, misc_pH[,,1,1], axes=F, col=rainbow(256))
 # Plot axis 1 (the bottom) with the defaults
 axis(1)
 # Plot axis 2 with ticks where we want them
 axis(2, at=c(-60,-30,0,30,60))
 # Use image.plot with the legend.only=T arguent to plot the colourbar only. 
-image.plot(lon, lat, misc_pH[,,1,1], legend.only=T)
+image.plot(lon, lat, misc_pH[,,1,1], legend.only=T, legend.lab = 'pH')
 # Make the box around the figure. 
 box()
 ```
